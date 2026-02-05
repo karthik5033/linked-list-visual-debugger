@@ -1,44 +1,44 @@
-/**
- * Arrow Component
- * Renders an arrow between nodes (for next/prev pointers)
- */
-
 'use client';
 
+import { motion } from 'framer-motion';
+
 export default function Arrow({ direction = 'right', label = '', isHighlighted = false }) {
-  const arrowColor = isHighlighted ? '#facc15' : '#374151';
+  const arrowColor = isHighlighted ? '#171717' : '#e5e5e5'; // Black if active, light gray if not
   
   if (direction === 'right') {
     return (
-      <div className="flex flex-col items-center justify-center mx-2">
-        <svg width="60" height="40" className="overflow-visible">
+      <div className="flex flex-col items-center justify-center -mx-1 z-0 relative">
+        <svg width="40" height="24" className="overflow-visible">
           <defs>
             <marker
               id={`arrowhead-${label}-${isHighlighted}`}
-              markerWidth="10"
-              markerHeight="10"
-              refX="9"
+              markerWidth="6"
+              markerHeight="6"
+              refX="5"
               refY="3"
               orient="auto"
             >
-              <polygon
-                points="0 0, 10 3, 0 6"
+              <path
+                d="M0,0 L6,3 L0,6"
                 fill={arrowColor}
               />
             </marker>
           </defs>
-          <line
+          <motion.line
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.5 }}
             x1="0"
-            y1="20"
-            x2="50"
-            y2="20"
+            y1="12"
+            x2="34"
+            y2="12"
             stroke={arrowColor}
-            strokeWidth={isHighlighted ? "3" : "2"}
+            strokeWidth="2"
             markerEnd={`url(#arrowhead-${label}-${isHighlighted})`}
           />
         </svg>
         {label && (
-          <span className={`text-xs font-semibold ${isHighlighted ? 'text-yellow-600' : 'text-gray-600'}`}>
+          <span className={`text-[9px] font-mono mt-0.5 tracking-tight ${isHighlighted ? 'text-black font-semibold' : 'text-gray-300'}`}>
             {label}
           </span>
         )}
@@ -46,41 +46,35 @@ export default function Arrow({ direction = 'right', label = '', isHighlighted =
     );
   }
 
-  // For backward arrows (prev pointer in doubly linked list)
+  // Backwards Arrow (for Doubly Prev)
   if (direction === 'left') {
-    return (
-      <div className="flex flex-col items-center justify-center mx-2">
-        <svg width="60" height="40" className="overflow-visible">
+    // We render this below the node usually, or offset
+     return (
+      <div className="flex flex-col items-center justify-center -mx-1 absolute -bottom-4 w-full">
+        <svg width="40" height="20" className="overflow-visible">
           <defs>
             <marker
               id={`arrowhead-back-${label}-${isHighlighted}`}
-              markerWidth="10"
-              markerHeight="10"
+              markerWidth="6"
+              markerHeight="6"
               refX="1"
               refY="3"
               orient="auto"
             >
-              <polygon
-                points="10 0, 0 3, 10 6"
-                fill={arrowColor}
-              />
+              <path d="M6,0 L0,3 L6,6" fill={arrowColor} />
             </marker>
           </defs>
           <line
-            x1="10"
-            y1="20"
-            x2="60"
-            y2="20"
+            x1="6"
+            y1="10"
+            x2="40"
+            y2="10"
             stroke={arrowColor}
-            strokeWidth={isHighlighted ? "3" : "2"}
+            strokeWidth="2"
             markerStart={`url(#arrowhead-back-${label}-${isHighlighted})`}
+             strokeDasharray="4 2"
           />
         </svg>
-        {label && (
-          <span className={`text-xs font-semibold ${isHighlighted ? 'text-yellow-600' : 'text-gray-600'}`}>
-            {label}
-          </span>
-        )}
       </div>
     );
   }
