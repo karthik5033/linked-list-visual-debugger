@@ -46,9 +46,10 @@ export default function CodePanel({ code, activeLine, title = "C++ Code" }) {
 
 // Simple syntax highlighter for C++ appearance
 function highlightSyntax(code) {
+  // Process steps in safe order: Keywords -> Variables -> Operators -> Comments
   return code
-    .replace(/\/\/.*/g, '<span class="text-gray-400 italic">$&</span>') // Comments
-    .replace(/\b(Node|int|void|if|else|while|return|new|delete|struct|class|public|private)\b/g, '<span class="text-purple-600 font-semibold">$&</span>') // Keywords
+    .replace(/\b(Node|int|void|if|else|while|return|new|delete|struct|public|private)\b/g, '<span class="text-purple-600 font-semibold">$&</span>') // Keywords (removed 'class')
     .replace(/\b(head|tail|next|prev|data|value)\b/g, '<span class="text-blue-600">$&</span>') // Variables
-    .replace(/(=|==|!=|->|\.|<|>|\+\+)/g, '<span class="text-gray-500">$&</span>'); // Operators
+    .replace(/(=|==|!=|->|\.|\+\+)/g, '<span class="text-gray-500">$&</span>') // Operators
+    .replace(/\/\/.*/g, '<span class="text-gray-400 italic">$&</span>'); // Comments (Last to wrap everything)
 }
