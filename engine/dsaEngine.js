@@ -457,4 +457,15 @@ export class DSAEngine {
 
     return this.stepEmitter.getSteps();
   }
+
+  // Helper: Reset the engine
+  reset() {
+    this.memory.reset();
+    this.stepEmitter.clear();
+  }
+
+  // Helper: Get current memory state
+  getMemoryState() {
+    return this.memory.getState();
+  }
 }
