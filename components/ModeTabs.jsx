@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-export default function ModeTabs({ currentMode, onModeChange }) {
+export default function ModeTabs({ currentMode, onModeChange, isDark = true }) {
     const modes = [
         { id: 'concept', label: 'Documentation' },
         { id: 'structure', label: 'Visualizer' },
@@ -11,7 +11,7 @@ export default function ModeTabs({ currentMode, onModeChange }) {
     ];
 
     return (
-        <div className="flex bg-transparent border-b border-white/10 w-full">
+        <div className={`flex bg-transparent border-b w-full transition-colors duration-500 ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
             {modes.map((mode) => {
                 const isActive = currentMode === mode.id;
                 return (
@@ -22,7 +22,7 @@ export default function ModeTabs({ currentMode, onModeChange }) {
               flex items-center gap-2 px-6 py-4 text-sm font-mono tracking-widest uppercase transition-all relative
               ${isActive
                                 ? 'text-blue-400'
-                                : 'text-gray-500 hover:text-gray-200'
+                                : isDark ? 'text-gray-500 hover:text-gray-200' : 'text-gray-500 hover:text-gray-900'
                             }
             `}
                     >

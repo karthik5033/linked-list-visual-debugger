@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ModeTabs from './ModeTabs';
 import MemoryBackground from '../app/components/MemoryBackground';
 import StatusBar from './StatusBar';
+import { useTheme } from '@/app/context/ThemeContext';
 
 export default function LinkedListLayout({
     title,
@@ -17,7 +18,8 @@ export default function LinkedListLayout({
     children
 }) {
     const [currentMode, setCurrentMode] = useState('concept');
-    const [memoryState, setMemoryState] = useState(null); // Lifted state for persistence
+    const [memoryState, setMemoryState] = useState(null);
+    const { isDark, toggleTheme } = useTheme();
 
     const getColorClasses = (c) => {
         const colors = {

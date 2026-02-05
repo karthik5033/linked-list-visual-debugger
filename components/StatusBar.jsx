@@ -2,12 +2,13 @@
 
 import { motion } from 'framer-motion';
 
-const StatusBar = () => (
+const StatusBar = ({ isDark = true }) => (
   <motion.div 
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ delay: 0.5 }}
-    className="fixed bottom-0 left-0 right-0 h-8 bg-[#0a0a0a]/80 border-t border-white/5 flex items-center px-4 justify-between text-xs font-mono text-gray-600 z-50 select-none backdrop-blur-md"
+    className={`fixed bottom-0 left-0 right-0 h-8 border-t flex items-center px-4 justify-between text-xs font-mono z-50 select-none backdrop-blur-md transition-colors duration-500
+      ${isDark ? 'bg-[#0a0a0a]/80 border-white/5 text-gray-600' : 'bg-white/80 border-gray-200 text-gray-500'}`}
   >
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
@@ -18,7 +19,7 @@ const StatusBar = () => (
       <span className="hidden md:inline">0 errors</span>
     </div>
     <div className="flex items-center gap-4">
-      <span className="text-gray-500">Memory.cpp</span>
+      <span className={isDark ? "text-gray-500" : "text-gray-400"}>Memory.cpp</span>
       <span className="text-blue-500">UTF-8</span>
     </div>
   </motion.div>
