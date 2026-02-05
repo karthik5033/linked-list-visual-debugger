@@ -46,7 +46,7 @@ body {
   }
 }
 
-/* My Custom Animations */
+/* Custom Animations */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -56,7 +56,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #374151; /* Darker scrollbar for dark theme */
+  background: #374151;
   border-radius: 4px;
 }
 
@@ -81,3 +81,17 @@ body {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+

@@ -1,42 +1,62 @@
-/**
- * Circular Singly Linked List Page
- * Coming soon
- */
-
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { DSAEngine } from '@/engine/dsaEngine';
+import ModeTabs from '@/components/ModeTabs';
+
+import CircularSinglyConcept from '@/components/concept/CircularSinglyConcept';
+import CircularLinearStructure from '@/components/structure/CircularLinearStructure';
+import CPUScheduler from '@/components/application/CPUScheduler';
+
+const engine = new DSAEngine();
 
 export default function CircularSinglyLinkedListPage() {
+  const [activeTab, setActiveTab] = useState('concept');
+  const [key, setKey] = useState(0);
+
+  // Reset engine when switching tabs to avoid stale state
+  useEffect(() => {
+    setKey(prev => prev + 1);
+    engine.reset();
+  }, [activeTab]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100">
-      <header className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <Link href="/" className="text-green-600 hover:text-green-700 font-semibold">
-            ← Back to Home
+    <div className="h-screen bg-[#0a0e1a] text-white flex flex-col overflow-hidden font-dm-sans selection:bg-blue-500/30">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-teal-500 to-green-500 z-50"></div>
+
+      {/* Header */}
+      <header className="bg-[#111827] border-b border-[#1f2937] px-6 py-4 flex items-center justify-between z-20 shadow-lg">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+            Back
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mt-2">
-            Circular Singly Linked List Debugger
+          <div className="h-6 w-px bg-gray-700 mx-2"></div>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent flex items-center gap-2">
+            <span>↻</span> Circular Singly Linked List
           </h1>
         </div>
+
+        <ModeTabs currentMode={activeTab} onModeChange={setActiveTab} />
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-16 text-center">
-        <div className="bg-white rounded-xl shadow-2xl p-12">
-          <div className="text-6xl mb-6">🚧</div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Coming Soon!
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            The Circular Singly Linked List debugger is under development.
-            This will show how the last node points back to the head.
-          </p>
-          <Link 
-            href="/linked-list/singly"
-            className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-          >
-            Try Singly Linked List Instead
-          </Link>
+      {/* Main App Area */}
+      <main className="flex-1 overflow-hidden p-6 relative">
+        <div className="absolute inset-0 bg-[#0a0e1a] bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:20px_20px] opacity-20 pointer-events-none"></div>
+        <div className="h-full max-w-[1920px] mx-auto z-10 relative">
+          {activeTab === 'concept' && (
+            <CircularSinglyConcept onStartLearning={() => setActiveTab('structure')} />
+          )}
+          {activeTab === 'structure' && (
+            <CircularLinearStructure engine={engine} key={`struct-${key}`} />
+          )}
+          {activeTab === 'application' && (
+            <CPUScheduler engine={engine} key={`app-${key}`} />
+          )}
         </div>
       </main>
     </div>

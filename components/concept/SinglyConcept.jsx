@@ -1,119 +1,85 @@
 'use client';
 
-import { motion } from 'framer-motion';
-
-const TechCard = ({ title, children, className = "" }) => (
-    <div className={`bg-[#050505] border border-white/10 rounded-sm p-6 ${className}`}>
-        <h3 className="text-xs font-mono font-bold text-gray-500 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">
-            {title}
-        </h3>
-        {children}
-    </div>
-);
-
-const SpecRow = ({ label, value }) => (
-    <div className="flex justify-between py-2 border-b border-white/5 font-mono text-sm last:border-0">
-        <span className="text-gray-500">{label}</span>
-        <span className="text-gray-200">{value}</span>
-    </div>
-);
-
 export default function SinglyConcept({ onStartLearning }) {
     return (
-        <div className="h-full max-w-6xl mx-auto p-6 flex flex-col justify-center">
-            
-            {/* Header / Meta */}
-            <div className="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
-                <div>
-                   <div className="text-blue-500 font-mono text-xs mb-2 tracking-wide">DOCS :: STRUCTURES :: 0x01</div>
-                   <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                       Singly Linked List
-                   </h2>
-                </div>
-                <div className="hidden md:block text-right font-mono text-xs text-gray-500">
-                    <div>LAST_UPDATE: 2024-10-24</div>
-                    <div>AUTHOR: SYSTEM</div>
-                </div>
-            </div>
+        <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-fade-in-up">
+            <div className="bg-blue-900/20 p-8 rounded-3xl border border-blue-500/30 shadow-2xl max-w-4xl">
+                <div className="text-6xl mb-6">→</div>
+                <h2 className="text-4xl font-bold text-white mb-4">Singly Linked List</h2>
+                <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
+                    A linked list where each node points to its
+                    <span className="text-blue-400 font-bold mx-1">Next</span>
+                    node. This allows for efficient insertions at the head but only forward traversal.
+                </p>
 
-            <div className="grid grid-cols-12 gap-8">
-                
-                {/* Main Description */}
-                <div className="col-span-12 lg:col-span-8 flex flex-col gap-8">
-                    <p className="text-xl text-gray-400 font-light leading-relaxed">
-                        A fundamental data structure consisting of a sequence of nodes, where each node contains 
-                        explicit reference (pointer) to the next node in the sequence. Memory allocation is non-contiguous.
-                    </p>
+                {/* Visual Diagram */}
+                <div className="bg-gray-900/50 p-8 rounded-xl border border-gray-700 mb-8 overflow-x-auto">
+                    <div className="flex items-center justify-center gap-4 min-w-max font-mono text-sm">
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TechCard title="Advantages">
-                            <ul className="space-y-3 text-sm text-gray-300 font-mono">
-                                <li className="flex gap-3">
-                                    <span className="text-green-500">[+]</span>
-                                    <span>Dynamic Memory Allocation</span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <span className="text-green-500">[+]</span>
-                                    <span>Constant Time O(1) Insertion (Head)</span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <span className="text-green-500">[+]</span>
-                                    <span>Efficient Stack Implementation</span>
-                                </li>
-                            </ul>
-                        </TechCard>
+                        {/* Node 1 */}
+                        <div className="flex items-center">
+                            <div className="w-24 h-16 bg-blue-600 rounded-lg flex border-2 border-blue-400 shadow-lg shadow-blue-500/20">
+                                <div className="flex-1 flex items-center justify-center font-bold text-white">10</div>
+                                <div className="w-1/3 border-l border-blue-400 bg-blue-800/50 flex items-center justify-center text-[10px] text-blue-300">next</div>
+                            </div>
+                        </div>
 
-                        <TechCard title="Limitations">
-                            <ul className="space-y-3 text-sm text-gray-300 font-mono">
-                                <li className="flex gap-3">
-                                    <span className="text-red-500">[-]</span>
-                                    <span>No Random Access (Index i)</span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <span className="text-red-500">[-]</span>
-                                    <span>Uni-directional Navigation</span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <span className="text-red-500">[-]</span>
-                                    <span>Extra Memory (Pointer Overhead)</span>
-                                </li>
-                            </ul>
-                        </TechCard>
-                    </div>
+                        {/* Arrow */}
+                        <div className="text-gray-400">→</div>
 
-                     <div className="mt-4">
-                        <button
-                            onClick={onStartLearning}
-                            className="bg-white text-black px-6 py-3 font-bold text-sm hover:bg-gray-200 transition-colors rounded-sm flex items-center gap-2"
-                        >
-                            <span>INITIALIZE_VISUALIZER</span>
-                            <span>→</span>
-                        </button>
+                        {/* Node 2 */}
+                        <div className="flex items-center">
+                            <div className="w-24 h-16 bg-blue-600 rounded-lg flex border-2 border-blue-400 shadow-lg shadow-blue-500/20">
+                                <div className="flex-1 flex items-center justify-center font-bold text-white">20</div>
+                                <div className="w-1/3 border-l border-blue-400 bg-blue-800/50 flex items-center justify-center text-[10px] text-blue-300">next</div>
+                            </div>
+                        </div>
+
+                        {/* Arrow */}
+                        <div className="text-gray-400">→</div>
+
+                        {/* Node 3 */}
+                        <div className="flex items-center">
+                            <div className="w-24 h-16 bg-blue-600 rounded-lg flex border-2 border-blue-400 shadow-lg shadow-blue-500/20">
+                                <div className="flex-1 flex items-center justify-center font-bold text-white">30</div>
+                                <div className="w-1/3 border-l border-blue-400 bg-blue-800/50 flex items-center justify-center text-[10px] text-blue-300">next</div>
+                            </div>
+                        </div>
+
+                        <div className="text-gray-500">→</div>
+                        {/* Null Next */}
+                        <div className="flex flex-col items-center opacity-50">
+                            <div className="w-12 h-12 border-2 border-dashed border-gray-600 rounded flex items-center justify-center">
+                                NULL
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Sidebar Specs */}
-                <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-                    <TechCard title="Technical Specifications">
-                        <div className="flex flex-col">
-                            <SpecRow label="Type" value="Linear, Dynamic" />
-                            <SpecRow label="Direction" value="Uni-directional" />
-                            <SpecRow label="Memory" value="Non-contiguous" />
-                            <SpecRow label="Overhead" value="4-8 bytes / node" />
-                        </div>
-                    </TechCard>
-
-                    <TechCard title="Complexity Analysis">
-                        <div className="flex flex-col">
-                            <SpecRow label="Access" value="O(n)" />
-                            <SpecRow label="Search" value="O(n)" />
-                            <SpecRow label="Insert (Head)" value="O(1)" />
-                            <SpecRow label="Insert (Tail)" value="O(n)*" />
-                            <SpecRow label="Delete" value="O(n)" />
-                        </div>
-                        <div className="mt-2 text-[10px] text-gray-600 font-mono">* O(1) if tail pointer maintained</div>
-                    </TechCard>
+                <div className="grid grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
+                    <div className="bg-gray-800 p-4 rounded-lg">
+                        <h4 className="text-green-400 font-bold mb-2">✅ Pros</h4>
+                        <ul className="text-sm text-gray-400 space-y-1">
+                            <li>• Dynamic size</li>
+                            <li>• O(1) insertion at head</li>
+                            <li>• Simple implementation</li>
+                        </ul>
+                    </div>
+                    <div className="bg-gray-800 p-4 rounded-lg">
+                        <h4 className="text-red-400 font-bold mb-2">❌ Cons</h4>
+                        <ul className="text-sm text-gray-400 space-y-1">
+                            <li>• No random access</li>
+                            <li>• Forward traversal only</li>
+                        </ul>
+                    </div>
                 </div>
+
+                <button
+                    onClick={onStartLearning}
+                    className="mt-8 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg shadow-lg shadow-blue-600/30 transition-all transform hover:scale-105 active:scale-95"
+                >
+                    Initialize Memory Space 🚀
+                </button>
             </div>
         </div>
     );
