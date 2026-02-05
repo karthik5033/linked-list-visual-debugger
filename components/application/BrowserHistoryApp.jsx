@@ -31,6 +31,16 @@ const getCodeSnippet = (op) => {
             '}',
             '// Update Browser UI to curr->url'
         ];
+        case 'searchHistory': return [
+            'Node* temp = head;',
+            'while (temp != nullptr) {',
+            '    if (temp->url == searchUrl) {',
+            '        return "Found!";',
+            '    }',
+            '    temp = temp->next;',
+            '}',
+            'return "Not Found";'
+        ];
         default: return [];
     }
 };
@@ -43,6 +53,8 @@ export default function BrowserHistoryApp({ engine }) {
     // Browser State
     const [urlInput, setUrlInput] = useState('google.com');
     const [currentUrl, setCurrentUrl] = useState('New Tab');
+    const [isSearchMode, setIsSearchMode] = useState(false); // Toggle for search vs visit
+    const [isIncognito, setIsIncognito] = useState(false);
     const inputRef = useRef(null);
 
     const {
@@ -75,47 +87,59 @@ export default function BrowserHistoryApp({ engine }) {
     const currNode = memoryState.nodes[currNodeId];
 
     useEffect(() => {
-        if (currNode) {
+        if (currNode && !isSearchMode) {
             setCurrentUrl(currNode.value);
             // Only update input if it's not the one we just typed (to avoid jumping cursor)
             if (currNode.value !== urlInput) {
                  setUrlInput(currNode.value);
             }
-        } else {
+        } else if (!currNode) {
              // If reset to empty
              setCurrentUrl('New Tab');
         }
-    }, [currNodeId, currNode]);
+    }, [currNodeId, currNode, isSearchMode]);
 
     const canGoBack = currNode?.prev !== null && currNode?.prev !== undefined;
     const canGoForward = currNode?.next !== null && currNode?.next !== undefined;
 
     const formatUrl = (input) => {
         let url = input.trim().toLowerCase();
-        if (!url.includes('.') && url !== 'localhost') {
+        if (!url.includes('.') && url !== 'localhost' && !isSearchMode) {
             return url + '.com';
         }
         return url;
     };
 
-    const handleVisit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         if (!urlInput.trim()) return;
 
-        const formattedUrl = formatUrl(urlInput);
-        setUrlInput(formattedUrl);
+        resetRunner();
         setIsThinking(true);
 
-        resetRunner();
-        setCurrentOperation('visitPage');
+        const formattedUrl = formatUrl(urlInput);
         
-        // Small artificial delay for realism
-        setTimeout(() => {
-             const newSteps = engine.executeOperation('doubly', 'visitPage', { value: formattedUrl });
-             setSteps(newSteps);
-             setIsThinking(false);
-             setTimeout(start, 500);
-        }, 600);
+        if (isSearchMode) {
+            setCurrentOperation('searchHistory');
+            // Execute Search
+             setTimeout(() => {
+                 const newSteps = engine.executeOperation('doubly', 'search', { value: formattedUrl });
+                 setSteps(newSteps);
+                 setIsThinking(false);
+                 setTimeout(start, 500);
+            }, 600);
+        } else {
+            setCurrentOperation('visitPage');
+            setUrlInput(formattedUrl);
+            
+            // Execute Visit
+            setTimeout(() => {
+                 const newSteps = engine.executeOperation('doubly', 'visitPage', { value: formattedUrl });
+                 setSteps(newSteps);
+                 setIsThinking(false);
+                 setTimeout(start, 500);
+            }, 600);
+        }
     };
 
     const handleBack = () => {
@@ -149,11 +173,11 @@ export default function BrowserHistoryApp({ engine }) {
     return (
         <div className="flex flex-col xl:flex-row h-full gap-6 animate-fade-in-up pb-8">
             {/* LEFT PANEL: BROWSER SIMULATION */}
-            <div className="flex-1 flex flex-col gap-6">
-                <div className="bg-[#121212] rounded-xl overflow-hidden shadow-2xl border border-white/10 flex flex-col h-[500px] relative">
+            <div className={`flex-1 flex flex-col gap-6 transition-colors duration-500`}>
+                <div className={`rounded-xl overflow-hidden shadow-2xl border flex flex-col h-[500px] relative transition-colors duration-500 ${isIncognito ? 'bg-[#1a1a1a] border-gray-700' : 'bg-[#121212] border-white/10'}`}>
                     
                     {/* Fake Chrome Toolbar */}
-                    <div className="bg-[#1e1e1e] p-3 flex items-center gap-3 border-b border-white/5 z-20 relative">
+                    <div className={`p-3 flex items-center gap-3 border-b z-20 relative transition-colors duration-500 ${isIncognito ? 'bg-[#2b2b2b] border-gray-700' : 'bg-[#1e1e1e] border-white/5'}`}>
                         {/* Controls */}
                         <div className="flex items-center gap-2 text-gray-400">
                             <button
@@ -182,26 +206,47 @@ export default function BrowserHistoryApp({ engine }) {
                         </div>
 
                         {/* Address Bar */}
-                        <form onSubmit={handleVisit} className="flex-1">
-                            <div className={`bg-[#2a2a2a] border ${isThinking ? 'border-purple-500/50' : 'border-white/5'} rounded-full px-4 py-2 flex items-center text-sm shadow-inner focus-within:ring-1 focus-within:ring-purple-500/50 transition-all duration-300`}>
-                                <span className={`mr-2 transition-colors ${isThinking ? 'text-purple-400' : 'text-gray-500'}`}>
-                                    {isThinking ? '✨' : urlInput.startsWith('https') ? '🔒' : '🌐'}
-                                </span>
+                        <form onSubmit={handleSubmit} className="flex-1">
+                            <div className={`border rounded-full px-4 py-2 flex items-center text-sm shadow-inner transition-all duration-300 ${
+                                isIncognito 
+                                    ? 'bg-[#3b3b3b] border-gray-600 focus-within:ring-white/20' 
+                                    : `bg-[#2a2a2a] ${isThinking ? 'border-purple-500/50' : 'border-white/5'} focus-within:ring-purple-500/50`
+                            } focus-within:ring-1`}>
+                                {/* Search Mode Toggle */}
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsSearchMode(!isSearchMode)}
+                                    className={`mr-2 transition-colors hover:text-white ${isSearchMode ? 'text-purple-400' : 'text-gray-500'}`}
+                                    title={isSearchMode ? "Switch to Navigation" : "Switch to Search History"}
+                                >
+                                    {isThinking ? '✨' : isSearchMode ? (
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                                    ) : (
+                                        isIncognito ? '🕶️' : (urlInput.startsWith('https') ? '🔒' : '🌐')
+                                    )}
+                                </button>
+                                
                                 <input
                                     ref={inputRef}
                                     type="text"
                                     value={urlInput}
                                     onChange={(e) => setUrlInput(e.target.value)}
-                                    className="flex-1 bg-transparent outline-none text-gray-200 font-medium placeholder-gray-600 font-mono"
-                                    placeholder="Enter URL (e.g. google)"
+                                    className="flex-1 bg-transparent outline-none text-gray-200 font-medium placeholder-gray-500 font-mono"
+                                    placeholder={isSearchMode ? "Search History..." : "Enter URL (e.g. google)"}
                                     disabled={isRunning}
                                 />
-                                {isThinking && <div className="text-xs text-purple-400 animate-pulse font-mono">Loading...</div>}
+                                {isThinking && <div className="text-xs text-purple-400 animate-pulse font-mono">{isSearchMode ? 'Searching...' : 'Loading...'}</div>}
                             </div>
                         </form>
 
-                        {/* User Profile (Deco) */}
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 border border-white/10 shadow-[0_0_10px_rgba(59,130,246,0.3)]"></div>
+                        {/* Incognito Toggle */}
+                        <button 
+                            onClick={() => setIsIncognito(!isIncognito)}
+                            className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center transition-all hover:scale-110 ${isIncognito ? 'bg-gray-700 text-white shadow-inner' : 'bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-[0_0_10px_rgba(59,130,246,0.3)]'}`}
+                            title="Toggle Incognito Mode"
+                        >
+                            {isIncognito ? '🕵️' : ''}
+                        </button>
                     </div>
 
                     {/* Pro Loading Bar */}
@@ -212,15 +257,15 @@ export default function BrowserHistoryApp({ engine }) {
                     )}
 
                     {/* Browser Content */}
-                    <div className="flex-1 bg-[#0a0a0a] relative overflow-hidden group">
+                    <div className={`flex-1 relative overflow-hidden group transition-colors duration-500 ${isIncognito ? 'bg-[#121212]' : 'bg-[#0a0a0a]'}`}>
                         {/* Tab Content Mockup */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-700 select-none pointer-events-none">
                             <div className={`text-9xl opacity-10 transition-all duration-700 transform ${isThinking ? 'scale-90 blur-sm' : 'scale-100 blur-0'}`}>
-                                {currentUrl === 'New Tab' ? '➕' : '🌐'}
+                                {isIncognito ? '🕵️' : (currentUrl === 'New Tab' ? '➕' : '🌐')}
                             </div>
                             <h1 className="text-4xl font-bold mt-4 text-gray-500 tracking-tight">{currentUrl}</h1>
                             <p className="text-gray-700 mt-2 font-mono text-sm uppercase tracking-widest">
-                                {currentUrl === 'New Tab' ? 'Wait for input...' : 'Page Loaded'}
+                                {isIncognito ? 'Incognito Mode' : (currentUrl === 'New Tab' ? 'Wait for input...' : 'Page Loaded')}
                             </p>
                         </div>
                         
@@ -250,7 +295,7 @@ export default function BrowserHistoryApp({ engine }) {
                     <ul className="text-sm text-gray-400 space-y-2 list-disc list-inside font-medium">
                         <li>Each page visit creates a <span className="text-white">New Node</span>.</li>
                         <li>Back/Forward moves the <span className="text-purple-400">curr</span> pointer.</li>
-                        <li>Visiting a new page from the middle of history <span className="text-red-400">deletes</span> all forward history nodes.</li>
+                        <li>Search traverses history <span className="text-blue-400">O(N)</span>.</li>
                     </ul>
                 </div>
             </div>
