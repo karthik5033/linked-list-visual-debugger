@@ -66,8 +66,18 @@ export class MemoryModel {
 
   // Get current state snapshot
   getState() {
+    // Deep copy nodes to ensure history steps don't share references
+    const nodesCopy = {};
+    for (const [id, node] of Object.entries(this.nodes)) {
+      nodesCopy[id] = { ...node };
+    }
+    
     return {
+<<<<<<< Updated upstream
       nodes: JSON.parse(JSON.stringify(this.nodes)), // Deep copy to persist history
+=======
+      nodes: nodesCopy,
+>>>>>>> Stashed changes
       head: this.head,
       tail: this.tail,
       curr: this.curr,

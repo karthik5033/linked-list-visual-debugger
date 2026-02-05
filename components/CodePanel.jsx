@@ -15,6 +15,7 @@ export default function CodePanel({ code = [], activeLine, title = 'C++ Code' })
 <<<<<<< HEAD
 // Simple syntax highlighter for C++ appearance
 function highlightSyntax(code) {
+<<<<<<< Updated upstream
   // Process steps in safe order: Keywords -> Variables -> Operators -> Comments
   return code
     .replace(/\b(Node|int|void|if|else|while|return|new|delete|struct|public|private)\b/g, '<span class="text-purple-600 font-semibold">$&</span>') // Keywords (removed 'class')
@@ -55,4 +56,45 @@ function highlightSyntax(code) {
         </div>
     );
 >>>>>>> f8ff2203ae70110c88cd4b2f078d9e627d3d8095
+=======
+  if (!code) return '';
+
+  // 1. Escape HTML entities first
+  let safeCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  
+  const placeholders = {};
+  let pId = 0;
+  const mask = (content) => {
+    const key = `___MASK_${pId++}___`;
+    placeholders[key] = content;
+    return key;
+  };
+
+  // 2. Mask Comments
+  safeCode = safeCode.replace(/(\/\/.*$)/gm, (match) => {
+    return mask(`<span class="text-gray-400 italic">${match}</span>`);
+  });
+
+  // 3. Mask Keywords
+  safeCode = safeCode.replace(/\b(Node|int|void|if|else|while|return|new|delete|struct|public|private)\b/g, (match) => {
+    return mask(`<span class="text-purple-600 font-semibold">${match}</span>`);
+  });
+
+  // 4. Mask Variables
+  safeCode = safeCode.replace(/\b(head|tail|next|prev|data|value)\b/g, (match) => {
+    return mask(`<span class="text-blue-600">${match}</span>`);
+  });
+
+  // 5. Mask Operators
+  safeCode = safeCode.replace(/(\->|==|!=|\+\+|[=+\-*/.])/g, (match) => {
+    return mask(`<span class="text-gray-500">${match}</span>`);
+  });
+
+  // 6. Restore all masks
+  Object.keys(placeholders).forEach((key) => {
+    safeCode = safeCode.split(key).join(placeholders[key]);
+  });
+
+  return safeCode;
+>>>>>>> Stashed changes
 }

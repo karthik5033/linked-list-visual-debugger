@@ -1,6 +1,27 @@
 'use client';
 
-import Link from 'next/link'
+import Link from 'next/link';
+
+const AnimatedBackground = () => (
+  <div className="fixed inset-0 -z-10 overflow-hidden bg-[#0a0e1a]">
+    {/* Base Gradient */}
+    <div className="absolute inset-0 bg-gradient-to-br from-[#0a0e1a] to-[#0f1422]" />
+
+    {/* Infinite Moving Grid (Starfield effect) */}
+    <div 
+      className="absolute inset-0 opacity-[0.15] animate-pan"
+      style={{
+        backgroundImage: 'radial-gradient(#ffffff 1.5px, transparent 1.5px)',
+        backgroundSize: '40px 40px'
+      }}
+    />
+
+    {/* Deep Space Orbs */}
+    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-float" style={{ animationDuration: '8s' }} />
+    <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-float" style={{ animationDuration: '10s', animationDelay: '1s' }} />
+    <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-emerald-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-float" style={{ animationDuration: '12s', animationDelay: '2s' }} />
+  </div>
+);
 
 export default function Home() {
   const linkedLists = [
@@ -81,7 +102,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] to-[#0f1422] text-gray-50 py-12 px-8">
+    <div className="min-h-screen text-gray-50 py-12 px-8 relative isolate">
+      <AnimatedBackground />
+
       <div className="max-w-7xl mx-auto">
         {/* Header - Opacity removed to prevent blank page */}
         <header className="text-center mb-16 animate-fade-in-down">
@@ -106,7 +129,7 @@ export default function Home() {
                 style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'backwards' }}
               >
                 <div className={`
-                  relative bg-[#1a1f35] border border-[#2d3548] rounded-2xl p-8
+                  relative bg-[#1a1f35]/80 backdrop-blur-sm border border-[#2d3548] rounded-2xl p-8
                   transition-all duration-500 hover:-translate-y-2
                   hover:shadow-2xl ${colors.shadow} ${colors.border}
                   before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px]
@@ -167,7 +190,7 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div className="bg-[#1a1f35] border border-[#2d3548] rounded-3xl p-14 animate-fade-in-up" style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}>
+        <div className="bg-[#1a1f35]/80 backdrop-blur-sm border border-[#2d3548] rounded-3xl p-14 animate-fade-in-up" style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}>
           <h2 className="text-4xl font-bold text-center mb-12 tracking-tight">
             What Makes This Different?
           </h2>
@@ -182,7 +205,7 @@ export default function Home() {
                 <div
                   key={idx}
                   className={`
-                    text-center p-8 rounded-2xl bg-[#111827] border border-transparent
+                    text-center p-8 rounded-2xl bg-[#111827]/50 border border-transparent
                     transition-all duration-500 hover:-translate-y-1
                     ${colors.border} hover:bg-[#242b42]
                   `}

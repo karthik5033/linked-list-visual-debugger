@@ -53,11 +53,20 @@ export class DSAEngine {
   singlyInsertHead(value) {
     const variables = { value, newNode: null, head: this.memory.head };
 
+<<<<<<< Updated upstream
     // Step 0: Check constraints (optional, good for visuals)
+=======
+    // Action 1: Create new node
+    const newNodeId = this.memory.createNode(value);
+    variables.newNode = newNodeId;
+    
+    // Step 1: Record state AFTER creating node
+>>>>>>> Stashed changes
     this.stepEmitter.addStep(
       null,
       { ...variables },
       this.memory.getState(),
+<<<<<<< Updated upstream
       `// Preparing to insert ${value} at head`
     );
 
@@ -65,10 +74,20 @@ export class DSAEngine {
     const newNodeId = this.memory.createNode(value);
     variables.newNode = newNodeId;
 
+=======
+      `Node created with value ${value}`
+    );
+
+    // Action 2: newNode->next = head
+    this.memory.setNext(newNodeId, this.memory.head);
+    
+    // Step 2: Record state AFTER linking
+>>>>>>> Stashed changes
     this.stepEmitter.addStep(
       1,
       { ...variables },
       this.memory.getState(),
+<<<<<<< Updated upstream
       `Node* newNode = new Node(${value});`
     );
 
@@ -83,6 +102,12 @@ export class DSAEngine {
     );
 
     // Step 3: head = newNode
+=======
+      `Set newNode->next to head`
+    );
+
+    // Action 3: head = newNode
+>>>>>>> Stashed changes
     this.memory.setHead(newNodeId);
     variables.head = newNodeId;
 
@@ -91,11 +116,19 @@ export class DSAEngine {
       this.memory.setTail(newNodeId);
     }
 
+<<<<<<< Updated upstream
+=======
+    // Step 3: Record final state
+>>>>>>> Stashed changes
     this.stepEmitter.addStep(
-      3,
+      2,
       { ...variables },
       this.memory.getState(),
+<<<<<<< Updated upstream
       `head = newNode; // Head now points to the new node`
+=======
+      `Head updated - insert complete`
+>>>>>>> Stashed changes
     );
 
     return this.stepEmitter.getSteps();
@@ -105,6 +138,7 @@ export class DSAEngine {
   singlyInsertTail(value) {
     const variables = { value, newNode: null, tail: this.memory.tail };
 
+<<<<<<< Updated upstream
     // Step 1: Create new node
     const newNodeId = this.memory.createNode(value);
     variables.newNode = newNodeId;
@@ -121,6 +155,46 @@ export class DSAEngine {
       this.memory.setHead(newNodeId);
       this.memory.setTail(newNodeId);
 
+=======
+    // Action 1: Create new node
+    const newNodeId = this.memory.createNode(value);
+    variables.newNode = newNodeId;
+    
+    // If list is empty
+    if (!this.memory.head) {
+      this.memory.setHead(newNodeId);
+      this.memory.setTail(newNodeId);
+      
+      this.stepEmitter.addStep(
+        0,
+        { ...variables },
+        this.memory.getState(),
+        `List was empty - node ${value} is now head and tail`
+      );
+    } else {
+      // Step 1: Record state after node creation
+      this.stepEmitter.addStep(
+        0,
+        { ...variables },
+        this.memory.getState(),
+        `Node created with value ${value}`
+      );
+
+      // Action 2: tail->next = newNode
+      this.memory.setNext(this.memory.tail, newNodeId);
+      
+      this.stepEmitter.addStep(
+        1,
+        { ...variables },
+        this.memory.getState(),
+        `Linked old tail to new node`
+      );
+
+      // Action 3: tail = newNode
+      this.memory.setTail(newNodeId);
+      variables.tail = newNodeId;
+      
+>>>>>>> Stashed changes
       this.stepEmitter.addStep(
         2,
         { ...variables, head: newNodeId },
@@ -136,6 +210,7 @@ export class DSAEngine {
       this.stepEmitter.addStep(
         5,
         { ...variables },
+<<<<<<< Updated upstream
         { ...this.memory.getState(), highlights: [oldTail, newNodeId] },
         `tail->next = newNode; // Link old tail to new node`
       );
@@ -150,6 +225,13 @@ export class DSAEngine {
       );
     }
 
+=======
+        this.memory.getState(),
+        `Tail updated - insert complete`
+      );
+    }
+
+>>>>>>> Stashed changes
     return this.stepEmitter.getSteps();
   }
 
@@ -168,13 +250,31 @@ export class DSAEngine {
       return this.stepEmitter.getSteps();
     }
 
+<<<<<<< Updated upstream
     // Step 1: Store head to delete
     const nodeToDelete = this.memory.head;
     variables.temp = nodeToDelete;
 
+=======
+    // Action 1: temp = head
+    variables.temp = this.memory.head;
     this.stepEmitter.addStep(
-      2,
+      0,
       { ...variables },
+      this.memory.getState(),
+      `Stored head reference in temp`
+    );
+
+    // Action 2: head = head->next
+    const nextNode = this.memory.getNode(this.memory.head).next;
+    this.memory.setHead(nextNode);
+    variables.head = nextNode;
+    
+>>>>>>> Stashed changes
+    this.stepEmitter.addStep(
+      1,
+      { ...variables },
+<<<<<<< Updated upstream
       { ...this.memory.getState(), highlights: [nodeToDelete] },
       `Node* playedSong = head;`
     );
@@ -189,11 +289,29 @@ export class DSAEngine {
       this.memory.setTail(null);
     }
 
+=======
+      this.memory.getState(),
+      `Head moved to next node`
+    );
+
+    // Action 3: delete temp
+    this.memory.deleteNode(variables.temp);
+    
+    // If list is now empty, clear tail
+    if (!this.memory.head) {
+      this.memory.setTail(null);
+    }
+    
+>>>>>>> Stashed changes
     this.stepEmitter.addStep(
-      3,
+      2,
       { ...variables },
       this.memory.getState(),
+<<<<<<< Updated upstream
       `head = head->next;`
+=======
+      `Old head deleted - operation complete`
+>>>>>>> Stashed changes
     );
 
     // Step 3: Delete old head
@@ -609,18 +727,172 @@ export class DSAEngine {
     return this.stepEmitter.getSteps();
   }
 
+  // Singly Linked List: Delete Tail
+  singlyDeleteTail() {
+    const variables = { tail: this.memory.tail, temp: null, current: this.memory.head };
+
+    // Case 0: Empty list
+    if (!this.memory.head) {
+      this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `List is empty, nothing to delete`);
+      return this.stepEmitter.getSteps();
+    }
+
+    // Case 1: Single node
+    if (this.memory.head === this.memory.tail) {
+      this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Only one node, deleting head/tail`);
+      this.memory.deleteNode(this.memory.head);
+      this.memory.setHead(null);
+      this.memory.setTail(null);
+      this.stepEmitter.addStep(1, {head: null, tail: null}, this.memory.getState(), `List is now empty`);
+      return this.stepEmitter.getSteps();
+    }
+
+    // Case 2: Traversing to find second-to-last
+    let current = this.memory.head;
+    let stepLine = 1;
+    
+    this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Starting traversal to find second-to-last node`);
+
+    // Ensure we have a next node to check (already handled by Case 1 but safe to check)
+    while (this.memory.getNode(current).next !== this.memory.tail) {
+      current = this.memory.getNode(current).next;
+      variables.current = current;
+      this.stepEmitter.addStep(stepLine++, {...variables}, this.memory.getState(), `Checking next node...`);
+    }
+
+    variables.current = current;
+    this.stepEmitter.addStep(stepLine++, {...variables}, this.memory.getState(), `Found second-to-last node`);
+
+    // Action: Set current->next to null
+    this.memory.setNext(current, null);
+    this.stepEmitter.addStep(stepLine++, {...variables}, this.memory.getState(), `Unlinking tail node`);
+
+    // Delete old tail
+    this.memory.deleteNode(this.memory.tail);
+    
+    // Update tail pointer
+    this.memory.setTail(current);
+    variables.tail = current;
+    
+    this.stepEmitter.addStep(stepLine, {...variables}, this.memory.getState(), `Deleted old tail, updated tail pointer`);
+
+    return this.stepEmitter.getSteps();
+  }
+
   // Placeholder methods for other list types
   executeCircularSinglyOperation(operation, params) {
     // TODO: Implement circular singly linked list operations
     return [];
   }
 
+<<<<<<< Updated upstream
   executeCircularDoublyOperation(operation, params) {
     // TODO: Implement circular doubly linked list operations
     return [];
   }
 
   // Reset the engine
+=======
+  // Doubly: Insert Head
+  doublyInsertHead(value) {
+    const variables = { value, newNode: null, head: this.memory.head };
+    
+    // Action 1: Create Node
+    const newNodeId = this.memory.createNode(value);
+    variables.newNode = newNodeId;
+    this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Node created with value ${value}`);
+
+    // Action 2: newNode->next = head
+    this.memory.setNext(newNodeId, this.memory.head);
+    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Linked newNode->next to head`);
+
+    // Action 3: if head != null, head->prev = newNode
+    if (this.memory.head) {
+      this.memory.setPrev(this.memory.head, newNodeId);
+      this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `Set current head->prev to newNode`);
+    }
+
+    // Action 4: head = newNode
+    this.memory.setHead(newNodeId);
+    variables.head = newNodeId;
+    this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `Updated head pointer`);
+
+    // Action 5: Handle tail
+    if (!this.memory.tail) {
+      this.memory.setTail(newNodeId);
+      this.stepEmitter.addStep(4, {...variables}, this.memory.getState(), `List was empty, tail = newNode`);
+    }
+
+    return this.stepEmitter.getSteps();
+  }
+
+  // Doubly: Insert Tail
+  doublyInsertTail(value) {
+    const variables = { value, newNode: null, tail: this.memory.tail };
+
+    // Action 1: Create Node
+    const newNodeId = this.memory.createNode(value);
+    variables.newNode = newNodeId;
+    this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Node created with value ${value}`);
+
+    // Action 2: newNode->prev = tail
+    this.memory.setPrev(newNodeId, this.memory.tail);
+    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Linked newNode->prev to tail`);
+
+    // Action 3: if tail != null, tail->next = newNode
+    if (this.memory.tail) {
+      this.memory.setNext(this.memory.tail, newNodeId);
+      this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `Set current tail->next to newNode`);
+    }
+
+    // Action 4: tail = newNode
+    this.memory.setTail(newNodeId);
+    variables.tail = newNodeId;
+    this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `Updated tail pointer`);
+
+    // Action 5: Handle head
+    if (!this.memory.head) {
+      this.memory.setHead(newNodeId);
+      this.stepEmitter.addStep(4, {...variables}, this.memory.getState(), `List was empty, head = newNode`);
+    }
+
+    return this.stepEmitter.getSteps();
+  }
+
+  // Doubly: Delete Head
+  doublyDeleteHead() {
+    const variables = { head: this.memory.head, temp: null };
+    
+    if (!this.memory.head) return this.stepEmitter.getSteps();
+
+    // Action 1: temp = head
+    variables.temp = this.memory.head;
+    this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Marked head node for deletion`);
+
+    // Action 2: head = head->next
+    const nextNode = this.memory.getNode(this.memory.head).next;
+    this.memory.setHead(nextNode);
+    variables.head = nextNode;
+    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Advanced head pointer`);
+
+    // Action 3: if head != nullptr, head->prev = nullptr
+    if (nextNode) {
+      this.memory.setPrev(nextNode, null);
+      this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `Cleared new head's prev pointer`);
+    } else {
+      this.memory.setTail(null); // List became empty
+      this.stepEmitter.addStep(2, {...variables, head: null}, this.memory.getState(), `List empty, cleared tail`);
+    }
+
+    // Action 4: delete temp
+    this.memory.deleteNode(variables.temp);
+    this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `Memory deallocated`);
+
+    return this.stepEmitter.getSteps();
+  }
+
+  // Helper: Reset the engine
+>>>>>>> Stashed changes
   reset() {
     this.memory.reset();
     this.stepEmitter.clear();
