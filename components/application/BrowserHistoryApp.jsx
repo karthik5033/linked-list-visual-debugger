@@ -89,15 +89,15 @@ export default function BrowserHistoryApp({ engine }) {
     useEffect(() => {
         if (currNode && !isSearchMode) {
             setCurrentUrl(currNode.value);
-            // Only update input if it's not the one we just typed (to avoid jumping cursor)
-            if (currNode.value !== urlInput) {
-                 setUrlInput(currNode.value);
-            }
+            // Only update input if the actual NODE has changed (navigation)
+            // We use the dependency array to ensure this only runs on navigation/mode switch
+            setUrlInput(currNode.value);
         } else if (!currNode) {
              // If reset to empty
              setCurrentUrl('New Tab');
+             if (!isSearchMode) setUrlInput('google.com'); 
         }
-    }, [currNodeId, currNode, isSearchMode]);
+    }, [currNodeId, isSearchMode]); // Fixed: Removed 'currNode' object dependency to prevent input reset while typing
 
     const canGoBack = currNode?.prev !== null && currNode?.prev !== undefined;
     const canGoForward = currNode?.next !== null && currNode?.next !== undefined;
