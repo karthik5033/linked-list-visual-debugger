@@ -347,29 +347,114 @@ export class DSAEngine {
   }
 
   // Placeholder methods for other list types
+  // Doubly Linked List Operations
   executeDoublyOperation(operation, params) {
-    // TODO: Implement doubly linked list operations
-    return [];
+    switch (operation) {
+      case 'insertHead':
+        return this.doublyInsertHead(params.value);
+      case 'insertTail':
+        return this.doublyInsertTail(params.value);
+      case 'deleteHead':
+        return this.doublyDeleteHead();
+      default:
+        throw new Error(`Operation ${operation} not yet implemented for Doubly Linked List`);
+    }
   }
 
-  executeCircularSinglyOperation(operation, params) {
-    // TODO: Implement circular singly linked list operations
-    return [];
+  // Doubly: Insert Head
+  doublyInsertHead(value) {
+    const variables = { value, newNode: null, head: this.memory.head };
+    
+    // Step 1: Create Node
+    this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Creating new node ${value}`);
+    const newNodeId = this.memory.createNode(value);
+    variables.newNode = newNodeId;
+
+    // Step 2: newNode->next = head
+    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Linking newNode->next to head`);
+    this.memory.setNext(newNodeId, this.memory.head);
+
+    // Step 3: if head != null, head->prev = newNode
+    if (this.memory.head) {
+      this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `Setting current head->prev to newNode`);
+      this.memory.setPrev(this.memory.head, newNodeId);
+    }
+
+    // Step 4: head = newNode
+    this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `Updating head pointer`);
+    this.memory.setHead(newNodeId);
+    variables.head = newNodeId;
+
+    // Step 5: Handle tail
+    if (!this.memory.tail) {
+      this.stepEmitter.addStep(4, {...variables}, this.memory.getState(), `List was empty, setting tail = newNode`);
+      this.memory.setTail(newNodeId);
+    }
+
+    return this.stepEmitter.getSteps();
   }
 
-  executeCircularDoublyOperation(operation, params) {
-    // TODO: Implement circular doubly linked list operations
-    return [];
+  // Doubly: Insert Tail
+  doublyInsertTail(value) {
+    const variables = { value, newNode: null, tail: this.memory.tail };
+
+    // Step 1: Create Node
+    this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Creating new node ${value}`);
+    const newNodeId = this.memory.createNode(value);
+    variables.newNode = newNodeId;
+
+    // Step 2: newNode->prev = tail
+    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Linking newNode->prev to tail`);
+    this.memory.setPrev(newNodeId, this.memory.tail);
+
+    // Step 3: if tail != null, tail->next = newNode
+    if (this.memory.tail) {
+      this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `Setting current tail->next to newNode`);
+      this.memory.setNext(this.memory.tail, newNodeId);
+    }
+
+    // Step 4: tail = newNode
+    this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `Updating tail pointer`);
+    this.memory.setTail(newNodeId);
+    variables.tail = newNodeId;
+
+    // Step 5: Handle head
+    if (!this.memory.head) {
+      this.stepEmitter.addStep(4, {...variables}, this.memory.getState(), `List was empty, setting head = newNode`);
+      this.memory.setHead(newNodeId);
+    }
+
+    return this.stepEmitter.getSteps();
   }
 
-  // Reset the engine
-  reset() {
-    this.memory.reset();
-    this.stepEmitter.clear();
-  }
+  // Doubly: Delete Head
+  doublyDeleteHead() {
+    const variables = { head: this.memory.head, temp: null };
+    
+    if (!this.memory.head) return this.stepEmitter.getSteps();
 
-  // Get current memory state
-  getMemoryState() {
-    return this.memory.getState();
+    // Step 1: temp = head
+    variables.temp = this.memory.head;
+    this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `Marking head node to delete`);
+
+    // Step 2: head = head->next
+    const nextNode = this.memory.getNode(this.memory.head).next;
+    this.memory.setHead(nextNode);
+    this.stepEmitter.addStep(1, {...variables, head: nextNode}, this.memory.getState(), `Advancing head pointer`);
+
+    // Step 3: if head != nullptr, head->prev = nullptr
+    if (nextNode) {
+      this.memory.setPrev(nextNode, null);
+      this.stepEmitter.addStep(2, {...variables, head: nextNode}, this.memory.getState(), `Clearing new head's prev pointer`);
+    } else {
+      this.memory.setTail(null); // List became empty
+      this.stepEmitter.addStep(2, {...variables, head: null}, this.memory.getState(), `List is now empty, clearing tail`);
+    }
+
+    // Step 4: delete temp
+    this.memory.deleteNode(variables.temp);
+    this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `Memory deallocated`);
+
+    return this.stepEmitter.getSteps();
   }
 }
