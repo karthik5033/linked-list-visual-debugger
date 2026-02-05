@@ -2,6 +2,7 @@
  * DSA Engine
  * Core logic for executing linked list operations step-by-step
  * Mirrors C++ algorithms and emits steps for visualization
+ * Updated: Force Refresh
  */
 
 import { MemoryModel } from './memoryModel.js';
@@ -930,6 +931,10 @@ export class DSAEngine {
         return this.circularSinglyAddProcess(params.value, params.burstTime);
       case 'runTimeSlice':
         return this.circularSinglyRunTimeSlice();
+      case 'moveToNext':
+        return this.circularSinglyMoveToNext();
+      case 'moveToPrev':
+        return this.circularSinglyMoveToPrev();
 
       // Generic Operations
       case 'insertHead':
@@ -938,6 +943,10 @@ export class DSAEngine {
         return this.circularSinglyInsertTail(params.value);
       case 'deleteValue':
         return this.circularSinglyDeleteValue(params.value);
+      case 'deleteHead':
+        return this.circularSinglyDeleteHead();
+      case 'deleteTail':
+        return this.circularSinglyDeleteTail();
 
       default:
         throw new Error(`Unknown circular singly operation: ${operation}`);
@@ -1009,18 +1018,242 @@ export class DSAEngine {
     return this.stepEmitter.getSteps();
   }
 
+  circularSinglyDeleteHead() {
+    const variables = { head: this.memory.head, tail: this.memory.tail };
+
+    if (!this.memory.head) return this.stepEmitter.getSteps();
+
+    const headId = this.memory.head;
+    
+    // Case 1: Single Node
+    if (this.memory.getNext(headId) === headId) {
+        this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head->next == head) { // Single node`);
+        
+        this.memory.setHead(null);
+        this.memory.setTail(null);
+        this.memory.setCurr(null);
+        this.memory.deleteNode(headId);
+        
+        this.stepEmitter.addStep(2, { head: null, tail: null }, this.memory.getState(), `head = tail = nullptr; delete head;`);
+        return this.stepEmitter.getSteps();
+    }
+
+    // Case 2: Multiple Nodes
+    const newHead = this.memory.getNode(headId).next;
+    const tailIs = this.memory.tail;
+
+    this.stepEmitter.addStep(
+        1,
+        { ...variables },
+        { ...this.memory.getState(), highlights: [headId] },
+        `Node* temp = head;`
+    );
+
+    // tail->next = newHead
+    this.memory.setNext(tailIs, newHead);
+    this.stepEmitter.addStep(
+        2,
+        { ...variables },
+        this.memory.getState(),
+        `tail->next = head->next;`
+    );
+
+    // head = newHead
+    this.memory.setHead(newHead);
+    this.stepEmitter.addStep(
+        3,
+        { ...variables, head: newHead },
+        this.memory.getState(),
+        `head = head->next;`
+    );
+
+    // delete old head
+    this.memory.deleteNode(headId);
+    this.stepEmitter.addStep(
+        4,
+        { ...variables },
+        this.memory.getState(),
+        `delete temp;`
+    );
+
+    return this.stepEmitter.getSteps();
+  }
+
+  circularSinglyDeleteTail() {
+    const variables = { head: this.memory.head, tail: this.memory.tail, curr: null };
+
+    if (!this.memory.head) return this.stepEmitter.getSteps();
+
+    const headId = this.memory.head;
+    const tailId = this.memory.tail;
+
+    // Case 1: Single Node
+    if (headId === tailId) {
+        this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head == tail) { // Single node`);
+        
+        this.memory.setHead(null);
+        this.memory.setTail(null);
+        this.memory.setCurr(null);
+        this.memory.deleteNode(headId);
+        
+        this.stepEmitter.addStep(2, { head: null, tail: null }, this.memory.getState(), `head = tail = nullptr; delete tail;`);
+        return this.stepEmitter.getSteps();
+    }
+
+    // Case 2: Multiple Nodes (Traverse to find prev to tail)
+    let curr = headId;
+    this.stepEmitter.addStep(
+        1,
+        { ...variables, curr },
+        { ...this.memory.getState(), highlights: [curr] },
+        `Node* curr = head;`
+    );
+
+    while (this.memory.getNode(curr).next !== tailId) {
+        curr = this.memory.getNode(curr).next;
+        this.stepEmitter.addStep(
+            2,
+            { ...variables, curr },
+            { ...this.memory.getState(), highlights: [curr] },
+            `while (curr->next != tail) { curr = curr->next; }`
+        );
+    }
+
+    // Found prev (curr)
+    const newTail = curr;
+    variables.curr = newTail;
+
+    // curr->next = head
+    this.memory.setNext(newTail, headId);
+    this.stepEmitter.addStep(
+        3,
+        { ...variables },
+        this.memory.getState(),
+        `curr->next = head;`
+    );
+
+    // tail = curr
+    this.memory.setTail(newTail);
+    this.stepEmitter.addStep(
+        4,
+        { ...variables, tail: newTail },
+        this.memory.getState(),
+        `tail = curr;`
+    );
+
+    // delete old tail
+    this.memory.deleteNode(tailId);
+    this.stepEmitter.addStep(
+        5,
+        { ...variables },
+        this.memory.getState(),
+        `delete oldTail;`
+    );
+
+    return this.stepEmitter.getSteps();
+  }
+
   circularSinglyDeleteValue(value) {
-    // Simplified: Find value and delete
-    if (!this.memory.head) return [];
+    const variables = { value, curr: this.memory.head, prev: null };
 
-    // Case 1: Head has value
-    // Since it's generic, we might delete head. If so, we need to update tail->next.
-    // Optimization: For this visualizer, let's reuse standard logic but assume we always track tail.
+    if (!this.memory.head) return this.stepEmitter.getSteps();
 
-    // Simplest approach: Delegate to memory model manipulations and generate steps
-    // TODO: Full implementation requires traversal. For now, doing simple visual steps.
+    // Step 1: Check Head
+    const headId = this.memory.head;
+    const headNode = this.memory.getNode(headId);
+    
+    // Check if head matches
+    if (headNode.value == value) {
+        this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head->data == val)`);
+        
+        // Case: Only one node
+        if (this.memory.getNext(headId) === headId) {
+            this.memory.setHead(null);
+            this.memory.setTail(null);
+            this.memory.setCurr(null);
+            this.memory.deleteNode(headId);
+            this.stepEmitter.addStep(2, { ...variables, head: null }, this.memory.getState(), `head = tail = nullptr; delete head;`);
+            return this.stepEmitter.getSteps();
+        }
 
-    return []; // Placeholder for complex generic delete in circular
+        // Case: Multiple Nodes (Delete Head)
+        const newHead = headNode.next;
+        const tail = this.memory.tail;
+        
+        // tail->next = newHead
+        this.memory.setNext(tail, newHead);
+        
+        // head = newHead
+        this.memory.setHead(newHead);
+        
+        this.memory.deleteNode(headId);
+        
+        this.stepEmitter.addStep(
+            3, 
+            { ...variables, head: newHead }, 
+            this.memory.getState(),
+            `tail->next = head->next; head = head->next; delete oldHead;`
+        );
+        return this.stepEmitter.getSteps();
+    }
+    
+    // Step 2: Traverse
+    let curr = headId;
+    let found = false;
+    
+    // We look for the node BEFORE the target to unlink it
+    // Start checking from head->next
+    
+    this.stepEmitter.addStep(
+        4,
+        { ...variables, curr },
+        { ...this.memory.getState(), highlights: [curr] },
+        `Node* curr = head; while(curr->next != head)`
+    );
+
+    while (this.memory.getNode(curr).next !== headId) {
+        const nextId = this.memory.getNode(curr).next;
+        const nextNode = this.memory.getNode(nextId);
+        
+        if (nextNode.value == value) {
+            found = true;
+            
+            // Found it at nextId
+            const toDelete = nextId;
+            const afterDelete = nextNode.next;
+            
+            // Unlink: curr->next = toDelete->next
+            this.memory.setNext(curr, afterDelete);
+            
+            // Update Tail checking
+            if (toDelete === this.memory.tail) {
+                this.memory.setTail(curr);
+                variables.tail = curr;
+            }
+            
+            this.memory.deleteNode(toDelete);
+            
+            this.stepEmitter.addStep(
+                5,
+                { ...variables, curr },
+                this.memory.getState(),
+                `curr->next = curr->next->next; delete node;`
+            );
+            return this.stepEmitter.getSteps();
+        }
+        
+        curr = nextId;
+        this.stepEmitter.addStep(
+            6,
+            { ...variables, curr },
+            { ...this.memory.getState(), highlights: [curr] },
+            `curr = curr->next;`
+        );
+    }
+    
+    // Not found
+    this.stepEmitter.addStep(7, { ...variables }, this.memory.getState(), `// Value not found`);
+    return this.stepEmitter.getSteps();
   }
 
   circularSinglyAddProcess(name, burstTime) {
@@ -1195,10 +1428,95 @@ export class DSAEngine {
     return this.stepEmitter.getSteps();
   }
 
-  // Circular Doubly LL: Fibonacci Heap Root List + Generic
+  // Circular Singly: Move to Next (Next Track)
+  circularSinglyMoveToNext() {
+      const variables = { curr: this.memory.curr };
+      
+      if (!this.memory.curr) return this.stepEmitter.getSteps();
+      
+      const currId = this.memory.curr;
+      const nextId = this.memory.getNode(currId).next;
+      
+      this.stepEmitter.addStep(
+          1,
+          { ...variables, next: nextId },
+          { ...this.memory.getState(), highlights: [currId] },
+          `// Moving to next track`
+      );
+      
+      // Step 2: curr = curr->next
+      this.memory.setCurr(nextId);
+      
+      this.stepEmitter.addStep(
+          2,
+          { ...variables, curr: nextId },
+          { ...this.memory.getState(), highlights: [nextId] },
+          `curr = curr->next;`
+      );
+      
+      return this.stepEmitter.getSteps();
+  }
+
+  // Circular Singly: Move to Prev (Prev Track) - O(N)
+  circularSinglyMoveToPrev() {
+      const variables = { curr: this.memory.curr, temp: null };
+      
+      if (!this.memory.curr) return this.stepEmitter.getSteps();
+      
+      const currId = this.memory.curr;
+      
+      let temp = currId;
+      this.stepEmitter.addStep(
+          1,
+          { ...variables, temp },
+          { ...this.memory.getState(), highlights: [temp] },
+          `Node* temp = curr;`
+      );
+
+      // Step 2: Traverse until temp->next == curr
+      let nextOfTemp = this.memory.getNode(temp).next;
+      let count = 0;
+      
+      // Safety break
+      while (nextOfTemp !== currId && count < 20) {
+          temp = nextOfTemp;
+          nextOfTemp = this.memory.getNode(temp).next;
+          
+          this.stepEmitter.addStep(
+              2,
+              { ...variables, temp },
+              { ...this.memory.getState(), highlights: [temp] },
+              `while (temp->next != curr) { temp = temp->next; }`
+          );
+          count++;
+      }
+      
+      // Step 3: curr = temp
+      this.memory.setCurr(temp);
+      
+      this.stepEmitter.addStep(
+          3,
+          { ...variables, curr: temp },
+          { ...this.memory.getState(), highlights: [temp] },
+          `curr = temp; // Found previous node`
+      );
+      
+      return this.stepEmitter.getSteps();
+  }
+
+  // Circular Doubly LL: Task Switcher + Generic
   executeCircularDoublyOperation(operation, params) {
     switch (operation) {
       // Application Specific
+      case 'insertApp':
+        return this.circularDoublyInsertHead(params.value); // Add app to front
+      case 'closeApp':
+        return this.circularDoublyDeleteCurr(); // Close active app
+      case 'moveToNext':
+        return this.circularDoublyMoveToNext();
+      case 'moveToPrev':
+        return this.circularDoublyMoveToPrev();
+      // Fibonacci Heap
       case 'insertRoot':
         return this.circularDoublyInsertRoot(params.value);
       case 'removeMin':
@@ -1209,10 +1527,56 @@ export class DSAEngine {
         return this.circularDoublyInsertHead(params.value);
       case 'insertTail':
         return this.circularDoublyInsertTail(params.value);
+      case 'deleteHead':
+        return this.circularDoublyDeleteHead();
+      case 'deleteTail':
+        return this.circularDoublyDeleteTail();
+      case 'deleteValue':
+        return this.circularDoublyDeleteValue(params.value);
 
       default:
         throw new Error(`Unknown circular doubly operation: ${operation}`);
     }
+  }
+
+  circularDoublyInsertRoot(value) {
+      const variables = { value, newNode: null };
+      const newNodeId = this.memory.createNode(value);
+      variables.newNode = newNodeId;
+
+      this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* tree = new Node(${value});`);
+
+      if (!this.memory.head) {
+        this.memory.setHead(newNodeId);
+        this.memory.setTail(newNodeId);
+        this.memory.setNext(newNodeId, newNodeId);
+        this.memory.setPrev(newNodeId, newNodeId);
+        this.memory.setCurr(newNodeId);
+        this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `head = tree; tree->next = tree; tree->prev = tree;`);
+      } else {
+        const head = this.memory.head;
+        const tail = this.memory.tail;
+        
+        this.memory.setNext(newNodeId, head);
+        this.memory.setPrev(newNodeId, tail);
+        this.memory.setNext(tail, newNodeId);
+        this.memory.setPrev(head, newNodeId);
+        
+        this.memory.setHead(newNodeId);
+        
+        this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `tree->next = head; tree->prev = tail; tail->next = tree; head->prev = tree; head = tree;`);
+      }
+      return this.stepEmitter.getSteps();
+  }
+
+  circularDoublyRemoveMin() {
+      if (!this.memory.head) return [];
+      
+      const z = this.memory.head;
+      const variables = { z };
+      this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [z] }, `// Removing minimum node (head)`);
+      
+      return this.circularDoublyDeleteNode(z);
   }
 
   circularDoublyInsertHead(value) {
@@ -1258,7 +1622,8 @@ export class DSAEngine {
       // 4. Update pointer
       if (atHead) {
         this.memory.setHead(newNodeId);
-        this.stepEmitter.addStep(6, { ...variables }, this.memory.getState(), `head = newNode;`);
+        this.memory.setCurr(newNodeId); // Automatically focus new head
+        this.stepEmitter.addStep(6, { ...variables }, this.memory.getState(), `head = newNode; curr = head;`);
       } else {
         this.memory.setTail(newNodeId);
         this.stepEmitter.addStep(6, { ...variables }, this.memory.getState(), `tail = newNode;`);
@@ -1267,101 +1632,112 @@ export class DSAEngine {
     return this.stepEmitter.getSteps();
   }
 
-  circularDoublyInsertRoot(value) {
-    const variables = { value, newNode: null };
-    const newNodeId = this.memory.createNode(value);
-    variables.newNode = newNodeId;
-
-    this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* tree = new Node(${value});`);
-
-    if (!this.memory.head) {
-      this.memory.setHead(newNodeId);
-      this.memory.setTail(newNodeId);
-      this.memory.setNext(newNodeId, newNodeId);
-      this.memory.setPrev(newNodeId, newNodeId);
-      this.memory.setCurr(newNodeId); // Focus on single tree
-
-      this.stepEmitter.addStep(
-        2,
-        { ...variables },
-        this.memory.getState(),
-        `head = tree; tree->next = tree; tree->prev = tree;`
-      );
-    } else {
-      // Insert left of head (effectively append to tail, but Fib Heaps usually insert near min or head)
-      // Let's insert 'At Head' (between Tail and Head)
-      const head = this.memory.head;
-      const tail = this.memory.tail; // In circular, tail is head->prev. We track explicit tail for visualization convenience.
-
-      // 1. tree->next = head
-      this.memory.setNext(newNodeId, head);
-
-      // 2. tree->prev = tail
-      this.memory.setPrev(newNodeId, tail);
-
-      // 3. tail->next = tree
-      this.memory.setNext(tail, newNodeId);
-
-      // 4. head->prev = tree
-      this.memory.setPrev(head, newNodeId);
-
-      // Usually Fib Heap updates min pointer. Here we just update head/tail conceptually.
-      // Let's update Head to new node (arbitrary, but standard implementation often merges into root list)
-      this.memory.setHead(newNodeId);
-      // Previous head is now just a node. New node is head.
-      // The old 'tail' remains the 'last' node conceptually before the wrap.
-
-      this.stepEmitter.addStep(
-        3,
-        { ...variables },
-        this.memory.getState(),
-        `tree->next = head; tree->prev = head->prev; head->prev->next = tree; head->prev = tree; head = tree;`
-      );
-    }
-    return this.stepEmitter.getSteps();
+  circularDoublyDeleteHead() {
+      if (!this.memory.head) return [];
+      return this.circularDoublyDeleteNode(this.memory.head);
   }
 
-  circularDoublyRemoveMin() {
-    // Simplified: Remove HEAD (assuming it's min or focus)
-    if (!this.memory.head) return [];
+  circularDoublyDeleteTail() {
+      if (!this.memory.tail) return [];
+      return this.circularDoublyDeleteNode(this.memory.tail);
+  }
 
-    const z = this.memory.head;
-    const variables = { z };
+  // Helper for deleting a specific node ID
+  circularDoublyDeleteNode(nodeId) {
+      const variables = { node: nodeId };
+      const headId = this.memory.head;
+      const tailId = this.memory.tail;
 
-    this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [z] }, `// Removing minimum node (head)`);
+      this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [nodeId] }, `// Deleting node`);
 
-    // Case: Single Node
-    if (this.memory.getNext(z) === z) {
-      this.memory.reset();
-      this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `head = nullptr; // Heap empty`);
+      // Case: Single Node
+      if (this.memory.getNext(nodeId) === nodeId) {
+          this.memory.reset();
+          this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `head = tail = nullptr; delete node;`);
+          return this.stepEmitter.getSteps();
+      }
+
+      const prev = this.memory.getPrev(nodeId);
+      const next = this.memory.getNext(nodeId);
+
+      // prev->next = next
+      this.memory.setNext(prev, next);
+      
+      // next->prev = prev
+      this.memory.setPrev(next, prev);
+
+      this.stepEmitter.addStep(
+          2, 
+          { ...variables }, 
+          this.memory.getState(),
+          `node->prev->next = node->next; node->next->prev = node->prev;`
+      );
+
+      // Update Head/Tail if we are deleting them
+      if (nodeId === headId) {
+          this.memory.setHead(next);
+          this.stepEmitter.addStep(3, { ...variables, head: next }, this.memory.getState(), `head = node->next;`);
+      }
+      if (nodeId === tailId) {
+          this.memory.setTail(prev);
+          this.stepEmitter.addStep(3, { ...variables, tail: prev }, this.memory.getState(), `tail = node->prev;`);
+      }
+
+      // Update curr if needed (move to next usually)
+      if (this.memory.curr === nodeId) {
+          this.memory.setCurr(next);
+      }
+
+      this.memory.deleteNode(nodeId);
+      this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `delete node;`);
+      
       return this.stepEmitter.getSteps();
-    }
+  }
+  
+  circularDoublyDeleteCurr() {
+      if (!this.memory.curr) return [];
+      return this.circularDoublyDeleteNode(this.memory.curr);
+  }
 
-    const prev = this.memory.getPrev(z);
-    const next = this.memory.getNext(z);
+  circularDoublyDeleteValue(value) {
+      const variables = { value, curr: this.memory.head };
+      if (!this.memory.head) return [];
 
-    // prev->next = next
-    this.memory.setNext(prev, next);
+      let curr = this.memory.head;
+      let found = false;
+      let start = curr;
+      
+      this.stepEmitter.addStep(1, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `Node* curr = head;`);
 
-    // next->prev = prev
-    this.memory.setPrev(next, prev);
+      do {
+          const node = this.memory.getNode(curr);
+          if (node.value == value) {
+              found = true;
+               this.stepEmitter.addStep(2, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `// Found value`);
+              return this.circularDoublyDeleteNode(curr);
+          }
+          curr = node.next;
+          this.stepEmitter.addStep(2, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `curr = curr->next;`);
+      } while (curr !== start);
 
-    // head = next
-    this.memory.setHead(next);
-    // Logic for 'tail' update if we track it explicitly:
-    if (this.memory.tail === z) this.memory.setTail(prev);
-    if (this.memory.curr === z) this.memory.setCurr(next);
+      this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `// Value not found`);
+      return this.stepEmitter.getSteps();
+  }
 
-    this.memory.deleteNode(z);
+  circularDoublyMoveToNext() {
+      if (!this.memory.curr) return [];
+      const next = this.memory.getNext(this.memory.curr);
+      this.memory.setCurr(next);
+      this.stepEmitter.addStep(1, { curr: next }, { ...this.memory.getState(), highlights: [next] }, `curr = curr->next;`);
+      return this.stepEmitter.getSteps();
+  }
 
-    this.stepEmitter.addStep(
-      3,
-      { ...variables, head: next },
-      this.memory.getState(),
-      `z->prev->next = z->next; z->next->prev = z->prev; head = z->next; delete z;`
-    );
-
-    return this.stepEmitter.getSteps();
+  circularDoublyMoveToPrev() {
+      if (!this.memory.curr) return [];
+      const prev = this.memory.getPrev(this.memory.curr);
+      this.memory.setCurr(prev);
+      this.stepEmitter.addStep(1, { curr: prev }, { ...this.memory.getState(), highlights: [prev] }, `curr = curr->prev;`);
+      return this.stepEmitter.getSteps();
   }
 
   // Helper: Reset the engine
