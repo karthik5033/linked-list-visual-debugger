@@ -73,11 +73,7 @@ export class MemoryModel {
     }
     
     return {
-<<<<<<< Updated upstream
-      nodes: JSON.parse(JSON.stringify(this.nodes)), // Deep copy to persist history
-=======
       nodes: nodesCopy,
->>>>>>> Stashed changes
       head: this.head,
       tail: this.tail,
       curr: this.curr,
