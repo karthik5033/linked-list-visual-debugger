@@ -1,9 +1,7 @@
-/**
- * Control Panel Component
- * Allows users to select operations, input values, and control step execution
- */
-
 'use client';
+
+import { useState } from 'react';
+import { Play, ChevronRight, ChevronLeft, RotateCcw, Command } from 'lucide-react';
 
 export default function ControlPanel({ 
   listType, 
@@ -30,6 +28,8 @@ export default function ControlPanel({
       { id: 'insertHead', label: 'Insert at Head', needsValue: true },
       { id: 'insertTail', label: 'Insert at Tail', needsValue: true },
       { id: 'deleteHead', label: 'Delete Head', needsValue: false },
+      { id: 'deleteTail', label: 'Delete Tail', needsValue: false },
+       { id: 'traverse', label: 'Traverse', needsValue: false },
     ],
     'circular-singly': [
       { id: 'insertHead', label: 'Insert at Head', needsValue: true },
@@ -61,90 +61,104 @@ export default function ControlPanel({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Control Panel</h2>
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 h-full flex flex-col">
+      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-100">
+        <Command className="w-5 h-5 text-gray-400" />
+        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+          Control Station
+        </h2>
+      </div>
       
       {/* Operation Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Select Operation
-        </label>
-        <select
-          value={selectedOperation}
-          onChange={(e) => setSelectedOperation(e.target.value)}
-          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-          disabled={isRunning}
+      <div className="space-y-4 flex-1">
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">
+            Operation
+          </label>
+          <div className="relative">
+            <select
+              value={selectedOperation}
+              onChange={(e) => setSelectedOperation(e.target.value)}
+              disabled={isRunning}
+              className="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 disabled:opacity-50 transition-colors"
+            >
+              <option value="">Select Action...</option>
+              {operations[listType]?.map(op => (
+                <option key={op.id} value={op.id}>{op.label}</option>
+              ))}
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+            </div>
+          </div>
+        </div>
+
+        {/* Value Input */}
+        {selectedOperation && operations[listType]?.find(op => op.id === selectedOperation)?.needsValue && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+            <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">
+              Input Value
+            </label>
+            <input
+              type="number"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all placeholder:text-gray-300"
+              placeholder="e.g. 42"
+              disabled={isRunning}
+              onKeyDown={(e) => e.key === 'Enter' && handleExecute()}
+            />
+          </div>
+        )}
+
+        {/* Execute Button */}
+        <button
+          onClick={handleExecute}
+          disabled={!selectedOperation || isRunning}
+          className="w-full mt-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed py-2.5 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-2 group shadow-sm"
         >
-          <option value="">Choose an operation...</option>
-          {operations[listType]?.map(op => (
-            <option key={op.id} value={op.id}>{op.label}</option>
-          ))}
-        </select>
+          <Play className="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" />
+          {isRunning ? 'Running...' : 'Execute'}
+        </button>
       </div>
 
-      {/* Value Input */}
-      {selectedOperation && operations[listType]?.find(op => op.id === selectedOperation)?.needsValue && (
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Enter Value
-          </label>
-          <input
-            type="number"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            placeholder="Enter a number"
-            disabled={isRunning}
-          />
-        </div>
-      )}
-
-      {/* Execute Button */}
-      <button
-        onClick={handleExecute}
-        disabled={!selectedOperation || isRunning}
-        className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors mb-6"
-      >
-        Execute Operation
-      </button>
-
-      {/* Step Controls */}
+      {/* Playback Controls */}
       {isRunning && (
-        <div className="border-t-2 border-gray-200 pt-6">
-          <div className="mb-4 text-center">
-            <span className="text-sm font-semibold text-gray-700">
-              Step {currentStepIndex + 1} of {totalSteps}
+        <div className="pt-6 mt-6 border-t border-gray-100 animate-in slide-in-from-bottom-4 duration-300">
+          <div className="flex justify-between items-center mb-4">
+             <span className="text-xs font-mono text-gray-500 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+              STEP {currentStepIndex + 1} / {totalSteps}
             </span>
+            <button
+              onClick={onReset}
+              className="text-gray-400 hover:text-red-600 transition-colors p-1"
+              title="Reset"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
           </div>
           
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={onPrevStep}
               disabled={!hasPrev}
-              className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 py-2 rounded-md text-sm font-medium transition-all disabled:opacity-50 disabled:hover:bg-white"
             >
-              ← Previous
+              <ChevronLeft className="w-4 h-4" />
+              Prev
             </button>
             
             <button
               onClick={onNextStep}
               disabled={!hasNext}
-              className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center justify-center gap-2 bg-black text-white hover:bg-gray-800 py-2 rounded-md text-sm font-medium transition-all disabled:opacity-50 disabled:hover:bg-black shadow-sm"
             >
-              Next →
+              Next
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-
-          <button
-            onClick={onReset}
-            className="w-full mt-3 bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-          >
-            Reset
-          </button>
         </div>
       )}
     </div>
   );
 }
-
-import { useState } from 'react';
