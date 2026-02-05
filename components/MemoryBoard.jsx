@@ -1,23 +1,16 @@
-/**
- * Memory Board Component
- * Visualizes the linked list structure with nodes and arrows
- */
-
 'use client';
 
+import { AnimatePresence } from 'framer-motion';
 import Node from './Node';
 import Arrow from './Arrow';
 
 export default function MemoryBoard({ memoryState, highlightedNodes = [] }) {
   if (!memoryState || !memoryState.nodes || Object.keys(memoryState.nodes).length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Memory Visualization</h2>
-        <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
-          <p className="text-gray-500 text-lg italic">
-            Empty List - Execute an operation to see memory visualization
-          </p>
-        </div>
+      <div className="flex flex-col items-center justify-center h-full opacity-50">
+        <div className="w-16 h-16 border-2 border-dashed border-gray-200 rounded-xl mb-4" />
+        <p className="text-gray-400 text-sm font-medium">Heap Empty</p>
+        <p className="text-gray-300 text-xs mt-1">Initialize data to view memory map</p>
       </div>
     );
   }
@@ -26,7 +19,7 @@ export default function MemoryBoard({ memoryState, highlightedNodes = [] }) {
   const nodesArray = [];
   let current = memoryState.head;
   const visited = new Set();
-  const maxNodes = 20; // Prevent infinite loops in circular lists
+  const maxNodes = 20;
 
   while (current && !visited.has(current) && nodesArray.length < maxNodes) {
     visited.add(current);
@@ -34,14 +27,16 @@ export default function MemoryBoard({ memoryState, highlightedNodes = [] }) {
     current = memoryState.nodes[current]?.next;
   }
 
+  // Detect if this is a Doubly LL by checking for 'prev' property on first node
+  const isDoubly = nodesArray.length > 0 && nodesArray[0].hasOwnProperty('prev');
+
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Memory Visualization</h2>
-      
-      <div className="overflow-x-auto pb-4">
-        <div className="flex items-center min-w-max p-8">
-          {nodesArray.map((node, index) => (
-            <div key={node.id} className="flex items-center">
+    <div className="flex items-center min-w-max p-4 h-full">
+      <AnimatePresence mode="popLayout">
+        {nodesArray.map((node, index) => (
+          <div key={node.id} className="flex items-center relative group">
+            
+            <div className="flex flex-col items-center relative z-10">
               <Node
                 value={node.value}
                 nodeId={node.id}
@@ -50,52 +45,39 @@ export default function MemoryBoard({ memoryState, highlightedNodes = [] }) {
                 isHighlighted={highlightedNodes.includes(node.id)}
               />
               
-              {/* Show arrow if there's a next node */}
-              {index < nodesArray.length - 1 && (
-                <Arrow 
-                  direction="right" 
-                  label="next"
-                  isHighlighted={highlightedNodes.includes(node.id)}
-                />
-              )}
-
-              {/* Show null arrow for the last node if it's not circular */}
-              {index === nodesArray.length - 1 && node.next === null && (
-                <div className="ml-4 flex items-center">
-                  <Arrow direction="right" label="" />
-                  <div className="w-16 h-16 rounded-lg border-4 border-dashed border-gray-400 flex items-center justify-center bg-gray-50">
-                    <span className="text-gray-500 font-mono text-sm">NULL</span>
-                  </div>
+              {/* Render Prev Arrow underneath if Doubly */}
+              {isDoubly && index > 0 && (
+                <div className="absolute top-14 w-full flex justify-center -left-[50%]">
+                   <Arrow direction="left" isHighlighted={false} />
                 </div>
               )}
             </div>
-          ))}
-        </div>
-      </div>
+            
+            {/* Next Arrow */}
+            {index < nodesArray.length - 1 && (
+              <div className="mx-0">
+                <Arrow 
+                  direction="right" 
+                  label={index === 0 ? "next" : ""} // Only show usage label once for cleanliness
+                  isHighlighted={highlightedNodes.includes(node.id)}
+                />
+              </div>
+            )}
 
-      {/* Memory Stats */}
-      <div className="mt-6 grid grid-cols-3 gap-4">
-        <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
-          <div className="text-sm text-gray-600 mb-1">Total Nodes</div>
-          <div className="text-2xl font-bold text-blue-700">
-            {Object.keys(memoryState.nodes).length}
+            {/* NULL Pointer */}
+            {index === nodesArray.length - 1 && node.next === null && (
+              <div className="flex items-center ml-2">
+                 <Arrow direction="right" label="" />
+                <div className="flex flex-col items-center ml-1 opacity-50">
+                   <div className="w-8 h-8 rounded border border-dashed border-gray-400 flex items-center justify-center bg-gray-50 scale-75">
+                    <span className="text-[8px] font-mono text-gray-500">NULL</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-        
-        <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
-          <div className="text-sm text-gray-600 mb-1">Head Node</div>
-          <div className="text-xl font-bold text-purple-700 font-mono">
-            {memoryState.head || 'NULL'}
-          </div>
-        </div>
-        
-        <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
-          <div className="text-sm text-gray-600 mb-1">Tail Node</div>
-          <div className="text-xl font-bold text-green-700 font-mono">
-            {memoryState.tail || 'NULL'}
-          </div>
-        </div>
-      </div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
