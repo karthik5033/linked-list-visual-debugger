@@ -5,13 +5,13 @@ import Link from 'next/link';
 
 export default function ModeTabs({ currentMode, onModeChange }) {
     const modes = [
-        { id: 'concept', label: 'Concept', icon: '💡' },
-        { id: 'structure', label: 'Visualization', icon: '🛠️' },
-        { id: 'application', label: 'Application', icon: '📱' },
+        { id: 'concept', label: 'Documentation' },
+        { id: 'structure', label: 'Visualizer' },
+        { id: 'application', label: 'Real World' },
     ];
 
     return (
-        <div className="flex items-center gap-1 bg-[#111827] p-1 rounded-xl border border-[#2d3548]">
+        <div className="flex bg-transparent border-b border-white/10 w-full">
             {modes.map((mode) => {
                 const isActive = currentMode === mode.id;
                 return (
@@ -19,15 +19,18 @@ export default function ModeTabs({ currentMode, onModeChange }) {
                         key={mode.id}
                         onClick={() => onModeChange(mode.id)}
                         className={`
-              flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 whitespace-nowrap
+              flex items-center gap-2 px-6 py-4 text-sm font-mono tracking-widest uppercase transition-all relative
               ${isActive
-                                ? 'bg-[#3b82f6] text-white shadow-lg shadow-blue-500/25'
-                                : 'text-gray-400 hover:text-white hover:bg-[#1f2937]'
+                                ? 'text-blue-400'
+                                : 'text-gray-500 hover:text-gray-200'
                             }
             `}
                     >
-                        <span className="text-lg">{mode.icon}</span>
                         {mode.label}
+                        
+                        {isActive && (
+                            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] w-full" />
+                        )}
                     </button>
                 );
             })}

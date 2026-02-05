@@ -68,7 +68,7 @@ export default function MusicPlaylist({ engine }) {
             {/* LEFT COLUMN: Controls & Memory Visualization */}
             <div className="flex flex-col gap-6">
                 {/* Playlist Controls */}
-                <div className="bg-[#1f2937] rounded-xl border border-[#374151] overflow-hidden">
+                <div className="bg-[#0a0a0a]/60 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden">
                     <PlaylistControlPanel
                         onAddSong={(name) => handleOperation('insertTail', name)}
                         onPlayNext={() => handleOperation('deleteHead', null)}
@@ -80,8 +80,8 @@ export default function MusicPlaylist({ engine }) {
 
                 {/* Memory Board (Linked List Visualization) */}
                 <div className="flex-1 flex flex-col gap-2">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider px-2">🔗 Memory Structure</h3>
-                    <div className="flex-1 bg-[#0f1422] rounded-xl border border-[#1f2937] p-1 overflow-hidden shadow-inner min-h-[300px]">
+                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider px-2 border-l-2 border-blue-500 pl-3">🔗 Memory Structure</h3>
+                    <div className="flex-1 bg-black/20 rounded-xl border border-white/10 p-1 overflow-hidden shadow-inner min-h-[300px]">
                         <MemoryBoard
                             memoryState={memoryState}
                             highlightedNodes={highlightedNodes}
@@ -139,7 +139,7 @@ export default function MusicPlaylist({ engine }) {
                 {/* Queue List */}
                 <div className="flex-1 flex flex-col gap-2">
                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider px-2">📜 Queue</h3>
-                    <div className="flex-1 bg-[#1f2937] rounded-xl border border-[#374151] p-4 overflow-y-auto">
+                    <div className="flex-1 bg-[#0a0a0a]/60 backdrop-blur-md rounded-xl border border-white/10 p-4 overflow-y-auto">
                         {memoryState.head ? (
                             <div className="space-y-2">
                                 {(() => {
@@ -152,7 +152,7 @@ export default function MusicPlaylist({ engine }) {
                                                 key={current}
                                                 className={`flex items-center gap-3 p-3 rounded-lg transition-all ${highlightedNodes.includes(current)
                                                     ? 'bg-blue-600/20 border border-blue-500/50'
-                                                    : 'bg-[#111827] hover:bg-[#1f2937]'
+                                                    : 'bg-white/5 hover:bg-white/10 border border-transparent'
                                                     }`}
                                             >
                                                 <span className="text-gray-500 font-mono text-sm w-6">{index}</span>

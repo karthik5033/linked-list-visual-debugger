@@ -44,6 +44,8 @@ export class DSAEngine {
         return this.singlySearch(params.value);
       case 'deleteHead':
         return this.singlyDeleteHead();
+      case 'deleteTail':
+        return this.singlyDeleteTail();
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }
@@ -290,15 +292,25 @@ export class DSAEngine {
     if (!nextNode) {
       this.memory.setTail(prev);
     }
+    
+    // Step 10: Unlink (Node still visible but disconnected)
+    this.stepEmitter.addStep(
+        10,
+        { ...variables },
+        { ...this.memory.getState(), highlights: [prev, nodeToDelete] },
+        `curr->next = temp->next;`
+    );
 
+    // Actual Deletion
+    this.memory.deleteNode(nodeToDelete);
+
+    // Step 11: Final State (Node gone)
     this.stepEmitter.addStep(
       11,
       { ...variables },
-      { ...this.memory.getState(), highlights: [prev, nodeToDelete] },
-      `prev->next = current->next; delete current;`
+      this.memory.getState(),
+      `delete temp;`
     );
-
-    this.memory.deleteNode(nodeToDelete);
 
     return this.stepEmitter.getSteps();
   }
@@ -416,6 +428,12 @@ export class DSAEngine {
           return this.doublyInsertTail(params.value);
       case 'deleteHead':
           return this.doublyDeleteHead();
+      case 'deleteTail':
+          return this.doublyDeleteTail();
+      case 'deleteValue':
+          return this.doublyDeleteValue(params.value);
+      case 'search':
+          return this.doublySearch(params.value);
       case 'insertAfterCurrent':
         return this.doublyInsertAfterCurrent(params.value);
       case 'deleteForwardHistory':
@@ -429,6 +447,201 @@ export class DSAEngine {
       default:
         throw new Error(`Unknown doubly operation: ${operation}`);
     }
+  }
+
+  // Doubly: Search
+  doublySearch(value) {
+    const variables = { val: value, current: this.memory.head, index: 0 };
+    let stepCount = 1;
+
+    // Step 1: Init
+    this.stepEmitter.addStep(
+      stepCount++,
+      { ...variables },
+      this.memory.getState(),
+      `Node* current = head; int index = 0;`
+    );
+
+    let current = this.memory.head;
+
+    while (current) {
+        const node = this.memory.getNode(current);
+        variables.current = current;
+
+        // Check Match
+        this.stepEmitter.addStep(
+            stepCount,
+            { ...variables },
+            { ...this.memory.getState(), highlights: [current] },
+            `if (current->data == val)`
+        );
+
+        if (node.value == value) { // Loose equality for string/number mixing
+            this.stepEmitter.addStep(
+                stepCount + 1,
+                { ...variables },
+                { ...this.memory.getState(), highlights: [current], success: true },
+                `return index; // Found at ${variables.index}`
+            );
+            return this.stepEmitter.getSteps();
+        }
+        
+        stepCount++;
+
+        // Move Next
+        current = node.next;
+        variables.index++;
+        
+        if (current) {
+            this.stepEmitter.addStep(
+                stepCount++,
+                { ...variables },
+                { ...this.memory.getState(), highlights: [current] },
+                `current = current->next; index++;`
+            );
+        }
+    }
+
+    this.stepEmitter.addStep(
+        stepCount,
+        { ...variables, current: null },
+        this.memory.getState(),
+        `return -1; // Not found`
+    );
+
+    return this.stepEmitter.getSteps();
+  }
+
+  // Doubly: Delete Tail
+  doublyDeleteTail() {
+      const variables = { tail: this.memory.tail, temp: null };
+
+      if (!this.memory.tail) return this.stepEmitter.getSteps();
+
+      // Step 1: temp = tail
+      variables.temp = this.memory.tail;
+      this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* temp = tail;`);
+
+      // Step 2: tail = tail->prev
+      const prevNode = this.memory.getNode(this.memory.tail).prev;
+      variables.tail = prevNode;
+      this.memory.setTail(prevNode);
+      this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `tail = tail->prev;`);
+
+      // Step 3: if tail != null, tail->next = null
+      if (prevNode) {
+          this.memory.setNext(prevNode, null);
+          this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `if (tail) tail->next = nullptr;`);
+      } else {
+          // List empty
+          this.memory.setHead(null);
+          this.stepEmitter.addStep(3, { ...variables, head: null }, this.memory.getState(), `head = nullptr; // List empty`);
+      }
+
+      // Step 4: delete temp
+      this.memory.deleteNode(variables.temp);
+      this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `delete temp;`);
+
+      return this.stepEmitter.getSteps();
+  }
+
+  // Doubly: Delete Value
+  doublyDeleteValue(value) {
+      const variables = { val: value, curr: this.memory.head };
+      let stepCount = 1;
+
+      // Step 1: Start traversal
+      this.stepEmitter.addStep(stepCount++, { ...variables }, this.memory.getState(), `Node* curr = head;`);
+
+      let curr = this.memory.head;
+      let found = false;
+
+      while (curr) {
+          variables.curr = curr;
+          const node = this.memory.getNode(curr);
+
+          // Check match
+          this.stepEmitter.addStep(
+              stepCount++, 
+              { ...variables }, 
+              { ...this.memory.getState(), highlights: [curr] }, 
+              `while (curr != nullptr && curr->data != val)`
+          );
+
+          if (node.value == value) {
+              found = true;
+              break;
+          }
+
+          curr = node.next;
+          if (curr) {
+             this.stepEmitter.addStep(
+                stepCount++,
+                { ...variables, curr },
+                { ...this.memory.getState(), highlights: [curr] },
+                `curr = curr->next;`
+             );
+          }
+      }
+
+      if (!found) { // Not found
+           this.stepEmitter.addStep(stepCount, { ...variables }, this.memory.getState(), `if (curr == nullptr) return;`);
+           return this.stepEmitter.getSteps();
+      }
+
+      // Found node at 'curr'
+      const nodeToDelete = curr;
+      const prevNode = this.memory.getNode(nodeToDelete).prev;
+      const nextNode = this.memory.getNode(nodeToDelete).next;
+
+      // Step: Unlink Prev
+      if (prevNode) {
+          this.memory.setNext(prevNode, nextNode);
+          this.stepEmitter.addStep(
+              stepCount++, 
+              { ...variables }, 
+              { ...this.memory.getState(), highlights: [prevNode, nodeToDelete] }, 
+              `if (curr->prev) curr->prev->next = curr->next;`
+          );
+      } else {
+          this.memory.setHead(nextNode);
+          this.stepEmitter.addStep(
+              stepCount++, 
+              { ...variables, head: nextNode }, 
+              this.memory.getState(), 
+              `else head = curr->next;`
+          );
+      }
+
+      // Step: Unlink Next
+      if (nextNode) {
+          this.memory.setPrev(nextNode, prevNode);
+          this.stepEmitter.addStep(
+              stepCount++, 
+              { ...variables }, 
+              { ...this.memory.getState(), highlights: [nodeToDelete, nextNode] }, 
+              `if (curr->next) curr->next->prev = curr->prev;`
+          );
+      } else {
+          this.memory.setTail(prevNode);
+          this.stepEmitter.addStep(
+              stepCount++, 
+              { ...variables, tail: prevNode }, 
+              this.memory.getState(), 
+              `else tail = curr->prev;`
+          );
+      }
+
+      // Step: Delete
+      this.memory.deleteNode(nodeToDelete);
+      this.stepEmitter.addStep(
+          stepCount++, 
+          { ...variables }, 
+          this.memory.getState(), 
+          `delete curr;`
+      );
+
+      return this.stepEmitter.getSteps();
   }
 
   // Doubly LL: Visit New Page (Browser History)

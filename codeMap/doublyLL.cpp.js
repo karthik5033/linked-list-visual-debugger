@@ -1,33 +1,35 @@
 /**
  * Doubly Linked List C++ Code Maps
- * Contains C++ code for doubly linked list operations
  */
 
 export const doublyLLCode = {
+  // Insert at Head
   insertHead: [
     "Node* newNode = new Node(val);",
-    "newNode->next = head;",
-    "if (head != nullptr) {",
+    "if (head == nullptr) {",
+    "    head = tail = newNode;",
+    "} else {",
+    "    newNode->next = head;",
     "    head->prev = newNode;",
+    "    head = newNode;",
     "}",
-    "head = newNode;",
-    "if (tail == nullptr) {",
-    "    tail = newNode;",
-    "}"
+    "// Insert complete"
   ],
 
+  // Insert at Tail
   insertTail: [
     "Node* newNode = new Node(val);",
-    "newNode->prev = tail;",
-    "if (tail != nullptr) {",
+    "if (tail == nullptr) {",
+    "    head = tail = newNode;",
+    "} else {",
     "    tail->next = newNode;",
+    "    newNode->prev = tail;",
+    "    tail = newNode;",
     "}",
-    "tail = newNode;",
-    "if (head == nullptr) {",
-    "    head = newNode;",
-    "}"
+    "// Insert complete"
   ],
 
+  // Delete Head
   deleteHead: [
     "if (head == nullptr) return;",
     "Node* temp = head;",
@@ -40,40 +42,46 @@ export const doublyLLCode = {
     "delete temp;"
   ],
 
-  traverse: [
+  // Delete Tail
+  deleteTail: [
+    "if (tail == nullptr) return;",
+    "Node* temp = tail;",
+    "tail = tail->prev;",
+    "if (tail != nullptr) {",
+    "    tail->next = nullptr;",
+    "} else {",
+    "    head = nullptr;",
+    "}",
+    "delete temp;"
+  ],
+
+  // Delete Value
+  deleteValue: [
+    "Node* curr = head;",
+    "while (curr != nullptr && curr->data != val) {",
+    "    curr = curr->next;",
+    "}",
+    "if (curr == nullptr) return;",
+    "if (curr->prev) curr->prev->next = curr->next;",
+    "else head = curr->next;",
+    "if (curr->next) curr->next->prev = curr->prev;",
+    "else tail = curr->prev;",
+    "delete curr;"
+  ],
+
+  // Search
+  search: [
     "Node* current = head;",
+    "int index = 0;",
     "while (current != nullptr) {",
-    "    cout << current->data << \" \";",
+    "    if (current->data == val) return index;",
     "    current = current->next;",
-    "}"
+    "    index++;",
+    "}",
+    "return -1;"
   ]
 };
 
 export function getDoublyLLCode(operation) {
   return doublyLLCode[operation] || [];
 }
-
-export const doublyLLClassDefinition = `
-struct Node {
-    int data;
-    Node* next;
-    Node* prev;
-    
-    Node(int val) : data(val), next(nullptr), prev(nullptr) {}
-};
-
-class DoublyLinkedList {
-private:
-    Node* head;
-    Node* tail;
-    
-public:
-    DoublyLinkedList() : head(nullptr), tail(nullptr) {}
-    
-    void insertHead(int val);
-    void insertTail(int val);
-    void deleteHead();
-    void deleteTail();
-    void traverse();
-};
-`;

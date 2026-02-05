@@ -42,7 +42,7 @@ export default function MemoryBoard({
     const nodeList = getAllNodes();
 
     return (
-        <div className="bg-[#1f2937] rounded-xl border border-[#374151] p-6 h-full shadow-inner flex flex-col">
+        <div className="bg-[#0a0a0a]/60 backdrop-blur-md rounded-xl border border-white/10 p-6 h-full shadow-lg flex flex-col">
             <h3 className="text-gray-400 font-bold mb-8 flex items-center gap-2">
                 <span>{icon}</span> {title}
             </h3>
@@ -61,8 +61,8 @@ export default function MemoryBoard({
                             {/* Head Pointer Visualization */}
                             {head && (
                                 <div className="mr-2 flex flex-col items-center opacity-50">
-                                    <div className="text-xs mb-1 font-mono text-green-500">head</div>
-                                    <div className="w-8 h-0.5 bg-green-500 mb-1"></div>
+                                    <div className="text-xs mb-1 font-mono text-green-400 font-bold uppercase tracking-wider">head</div>
+                                    <div className="w-8 h-1 bg-green-500 mb-1 shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
                                 </div>
                             )}
 
@@ -83,7 +83,7 @@ export default function MemoryBoard({
 
                             {/* Final Null Pointer (only if last node points to null) */}
                             <div className="flex items-center ml-2 opacity-30">
-                                <span className="text-xs font-mono text-gray-500">NULL</span>
+                                <span className="text-sm font-mono text-gray-500 font-bold">NULL</span>
                             </div>
                         </div>
                     )}
@@ -91,7 +91,7 @@ export default function MemoryBoard({
             </div>
             
              {/* Legend */}
-             <div className="mt-4 pt-4 border-t border-gray-700 flex gap-4 text-xs text-gray-400">
+             <div className="mt-4 pt-4 border-t border-white/10 flex gap-4 text-xs text-gray-400">
                 <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
                     <span>Head</span>
@@ -119,32 +119,32 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
                 className={`
-          relative z-10 min-w-[4rem] h-16 px-2 rounded-xl flex items-center justify-center border-2 
+          relative z-10 min-w-[5.5rem] h-20 px-3 rounded-2xl flex items-center justify-center border-2 
           shadow-lg transition-all duration-300
           ${isHighlighted
                         ? 'bg-blue-600/90 border-blue-400 shadow-blue-500/30'
                         : isCurr
                             ? 'bg-purple-600/90 border-purple-400 shadow-purple-500/30'
-                            : 'bg-gray-800 border-gray-600'
+                            : 'bg-black/40 border-white/20 hover:border-white/40'
                     }
         `}
             >
-                <div className="flex flex-col items-center">
-                    <span className="text-sm font-bold font-mono text-white max-w-[6rem] truncate">
+            <div className="flex flex-col items-center gap-1">
+                    <span className="text-xl font-bold font-mono text-white max-w-[6rem] truncate tracking-tight drop-shadow-md">
                         {node.formattedValue !== undefined ? node.formattedValue : node.value}
                     </span>
-                    <span className="text-[9px] text-gray-500 font-mono mt-0.5">
+                    <span className="text-[10px] text-gray-400 font-mono">
                         {node.id.replace('node_', '0x')}
                     </span>
                 </div>
 
                 {/* Labels (Head/Tail/Curr) */}
-                <div className="absolute -top-3 right-0 mr-[-5px] mt-[-5px] flex gap-1">
+                <div className="absolute -top-4 right-0 mr-[-5px] mt-[-5px] flex gap-2">
                     {isHead && (
-                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]" title="HEAD"/>
+                        <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,1)] border border-white/20" title="HEAD"/>
                     )}
                     {isTail && (
-                        <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_5px_rgba(249,115,22,0.8)]" title="TAIL"/>
+                        <div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,1)] border border-white/20" title="TAIL"/>
                     )}
                 </div>
             </motion.div>

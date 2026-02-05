@@ -1,49 +1,120 @@
 'use client';
 
+import { motion } from 'framer-motion';
+
+const TechCard = ({ title, children, className = "" }) => (
+    <div className={`bg-[#050505] border border-white/10 rounded-sm p-6 ${className}`}>
+        <h3 className="text-xs font-mono font-bold text-gray-500 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">
+            {title}
+        </h3>
+        {children}
+    </div>
+);
+
+const SpecRow = ({ label, value }) => (
+    <div className="flex justify-between py-2 border-b border-white/5 font-mono text-sm last:border-0">
+        <span className="text-gray-500">{label}</span>
+        <span className="text-gray-200">{value}</span>
+    </div>
+);
+
 export default function SinglyConcept({ onStartLearning }) {
     return (
-        <div className="h-full flex flex-col items-center justify-center p-12 text-center max-w-4xl mx-auto">
-            <div className="mb-8 p-6 bg-blue-500/10 rounded-full">
-                <span className="text-6xl">→</span>
-            </div>
-
-            <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
-                What is a Singly Linked List?
-            </h2>
-
-            <p className="text-xl text-gray-400 mb-12 leading-relaxed">
-                A precise sequence of nodes where each node contains data and a pointer to the next node.
-                Unlike arrays, nodes are not stored contiguously in memory, allowing for efficient
-                <strong className="text-blue-400"> O(1) insertions</strong> at the head.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 w-full">
-                <div className="bg-[#1f2937] p-8 rounded-2xl border border-[#374151]">
-                    <h3 className="text-lg font-bold mb-4 text-green-400">When to use</h3>
-                    <ul className="text-left space-y-3 text-gray-300">
-                        <li className="flex gap-2">✓ <span>Dynamic size requirements</span></li>
-                        <li className="flex gap-2">✓ <span>Frequent insertions at the beginning</span></li>
-                        <li className="flex gap-2">✓ <span>Implementing Stacks or Queues</span></li>
-                    </ul>
+        <div className="h-full max-w-6xl mx-auto p-6 flex flex-col justify-center">
+            
+            {/* Header / Meta */}
+            <div className="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
+                <div>
+                   <div className="text-blue-500 font-mono text-xs mb-2 tracking-wide">DOCS :: STRUCTURES :: 0x01</div>
+                   <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+                       Singly Linked List
+                   </h2>
                 </div>
-
-                <div className="bg-[#1f2937] p-8 rounded-2xl border border-[#374151]">
-                    <h3 className="text-lg font-bold mb-4 text-red-400">When NOT to use</h3>
-                    <ul className="text-left space-y-3 text-gray-300">
-                        <li className="flex gap-2">✗ <span>Random access needed (Index i)</span></li>
-                        <li className="flex gap-2">✗ <span>Memory is extremely limited (pointer overhead)</span></li>
-                        <li className="flex gap-2">✗ <span>Backward traversal required</span></li>
-                    </ul>
+                <div className="hidden md:block text-right font-mono text-xs text-gray-500">
+                    <div>LAST_UPDATE: 2024-10-24</div>
+                    <div>AUTHOR: SYSTEM</div>
                 </div>
             </div>
 
-            <button
-                onClick={onStartLearning}
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-blue-500/30 flex items-center gap-2 group"
-            >
-                Start Visualization
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
-            </button>
+            <div className="grid grid-cols-12 gap-8">
+                
+                {/* Main Description */}
+                <div className="col-span-12 lg:col-span-8 flex flex-col gap-8">
+                    <p className="text-xl text-gray-400 font-light leading-relaxed">
+                        A fundamental data structure consisting of a sequence of nodes, where each node contains 
+                        explicit reference (pointer) to the next node in the sequence. Memory allocation is non-contiguous.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TechCard title="Advantages">
+                            <ul className="space-y-3 text-sm text-gray-300 font-mono">
+                                <li className="flex gap-3">
+                                    <span className="text-green-500">[+]</span>
+                                    <span>Dynamic Memory Allocation</span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <span className="text-green-500">[+]</span>
+                                    <span>Constant Time O(1) Insertion (Head)</span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <span className="text-green-500">[+]</span>
+                                    <span>Efficient Stack Implementation</span>
+                                </li>
+                            </ul>
+                        </TechCard>
+
+                        <TechCard title="Limitations">
+                            <ul className="space-y-3 text-sm text-gray-300 font-mono">
+                                <li className="flex gap-3">
+                                    <span className="text-red-500">[-]</span>
+                                    <span>No Random Access (Index i)</span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <span className="text-red-500">[-]</span>
+                                    <span>Uni-directional Navigation</span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <span className="text-red-500">[-]</span>
+                                    <span>Extra Memory (Pointer Overhead)</span>
+                                </li>
+                            </ul>
+                        </TechCard>
+                    </div>
+
+                     <div className="mt-4">
+                        <button
+                            onClick={onStartLearning}
+                            className="bg-white text-black px-6 py-3 font-bold text-sm hover:bg-gray-200 transition-colors rounded-sm flex items-center gap-2"
+                        >
+                            <span>INITIALIZE_VISUALIZER</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Sidebar Specs */}
+                <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
+                    <TechCard title="Technical Specifications">
+                        <div className="flex flex-col">
+                            <SpecRow label="Type" value="Linear, Dynamic" />
+                            <SpecRow label="Direction" value="Uni-directional" />
+                            <SpecRow label="Memory" value="Non-contiguous" />
+                            <SpecRow label="Overhead" value="4-8 bytes / node" />
+                        </div>
+                    </TechCard>
+
+                    <TechCard title="Complexity Analysis">
+                        <div className="flex flex-col">
+                            <SpecRow label="Access" value="O(n)" />
+                            <SpecRow label="Search" value="O(n)" />
+                            <SpecRow label="Insert (Head)" value="O(1)" />
+                            <SpecRow label="Insert (Tail)" value="O(n)*" />
+                            <SpecRow label="Delete" value="O(n)" />
+                        </div>
+                        <div className="mt-2 text-[10px] text-gray-600 font-mono">* O(1) if tail pointer maintained</div>
+                    </TechCard>
+                </div>
+            </div>
         </div>
     );
 }
