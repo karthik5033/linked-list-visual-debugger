@@ -9,7 +9,9 @@ import ControlPanel from '@/components/ControlPanel';
 const OPERATION_TITLES = {
     insertHead: 'Insert at Head',
     insertTail: 'Insert at Tail',
-    deleteValue: 'Delete Value'
+    deleteValue: 'Delete Value',
+    deleteHead: 'Delete Head',
+    deleteTail: 'Delete Tail'
 };
 
 const getCodeSnippet = (op) => {
@@ -34,7 +36,47 @@ const getCodeSnippet = (op) => {
             '    tail = newNode;',
             '}'
         ];
-        // ... add deleteValue snippet
+        case 'deleteHead': return [
+            'if (head == nullptr) return;',
+            'if (head->next == head) {',
+            '    delete head; head = tail = nullptr;',
+            '} else {',
+            '    Node* temp = head;',
+            '    tail->next = head->next;',
+            '    head = head->next;',
+            '    delete temp;',
+            '}'
+        ];
+        case 'deleteTail': return [
+            'if (head == nullptr) return;',
+            'if (head == tail) {',
+            '    delete head; head = tail = nullptr;',
+            '} else {',
+            '    Node* curr = head;',
+            '    while(curr->next != tail) curr = curr->next;',
+            '    curr->next = head;',
+            '    delete tail;',
+            '    tail = curr;',
+            '}'
+        ];
+        case 'deleteValue': return [
+            'if (head == nullptr) return;',
+            'if (head->data == val) {',
+            '    // Delete Head Logic',
+            '} else {',
+            '    Node* curr = head;',
+            '    while(curr->next != head) {',
+            '        if(curr->next->data == val) {',
+            '             Node* temp = curr->next;',
+            '             curr->next = temp->next;',
+            '             if(temp == tail) tail = curr;',
+            '             delete temp;',
+            '             return;',
+            '        }',
+            '        curr = curr->next;',
+            '    }',
+            '}'
+        ];
         default: return [];
     }
 };
@@ -118,6 +160,8 @@ export default function CircularLinearStructure({ engine }) {
                     onInsertHead={(val) => handleOperation('insertHead', val)}
                     onInsertTail={(val) => handleOperation('insertTail', val)}
                     onDeleteValue={(val) => handleOperation('deleteValue', val)}
+                    onDeleteHead={() => handleOperation('deleteHead')}
+                    onDeleteTail={() => handleOperation('deleteTail')}
                     // Search not implemented for generic circular yet
                     onReset={handleReset}
                     isRunning={isRunning}

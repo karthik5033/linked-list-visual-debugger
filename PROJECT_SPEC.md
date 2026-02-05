@@ -1,273 +1,237 @@
 Project Title
 
-Visual Debugger for Data Structures with Real-Time Memory Simulation
+Visual Debugger for the Linked List using Real-Time Memory Simulation and C++ Algorithms
 
 1. Project Vision
 
-This project is an interactive educational platform that allows users to perform data structure operations and observe how memory, pointers, and variables change step-by-step, exactly like a debugger.
+This project is an educational platform that allows students to learn the entire family of linked lists by:
 
-The goal is not animation.
-The goal is code-to-memory understanding.
+Executing real C++ linked list algorithms
 
-The system behaves like a DSA Debugger.
+Observing how memory, pointers, and variables change
 
-2. Core Principle (MOST IMPORTANT)
+Watching step-by-step execution like a debugger
 
-At any time during execution, the system must show:
+This is not an animation tool.
 
-Current code line being executed
+This is a Linked List Visual Debugger powered by C++ DSA logic.
 
-Current state of data structure in memory
+2. Linked List Types Covered
 
-Current values of important variables (head, temp, prev, etc.)
-
-Step-by-step execution (not instant animation)
-
-Everything in the UI revolves around this principle.
-
-3. Data Structures Supported (Phase 1)
-
-Array
+The system must support:
 
 Singly Linked List
 
-Stack
+Doubly Linked List
 
-Queue
+Circular Singly Linked List
 
-System must be designed so more DS can be added later.
+Circular Doubly Linked List
 
-4. System Architecture
+Each with proper operations.
 
-The project is divided into 6 logical layers:
+3. Tech Stack
+Part	Technology
+UI	Next.js (App Router) + React + Tailark
+Visualization	HTML/CSS/SVG
+Logic (DSA)	C++ algorithms
+Step extraction	JS step engine that mirrors C++ lines
+Fully client side	Yes
+4. Core Principle (Most Important)
 
-4.1 UI Layer
+For every step of the C++ algorithm, UI must show:
 
-Contains controls, panels, and layout.
+active C++ line
+memory state
+variables (head, tail, prev, curr, next)
 
-4.2 DSA Engine (Core Logic)
+5. Operations to Implement for EACH Linked List Type
+Insert
 
-Pure JavaScript implementations of all DS operations.
+At head
 
-This layer:
+At tail
 
-Performs operations step-by-step
+At position
 
-Emits state updates after each step
+Delete
 
-4.3 Memory Engine
+By value
 
-Maintains a memory model representing nodes, pointers, array cells, stack frames.
+Head delete
 
-This is NOT UI. This is data.
+Tail delete
 
-4.4 Visualization Layer
+Traverse
+Reverse (where applicable)
+Special cases
 
-Reads Memory Engine and renders nodes, arrows, boxes.
+Empty list
 
-4.5 Code Sync Engine
+Single node list
 
-Maps each step of algorithm to a code line highlight.
+6. High-Level Architecture
+User Action
+   ↓
+C++ Code Map (lines)
+   ↓
+JS DSA Step Engine (mirrors C++)
+   ↓
+Memory Model
+   ↓
+StepEmitter
+   ↓
+UI Panels Update
 
-4.6 Variable Watcher
-
-Displays live values of important variables.
-
-5. Folder Structure (strict)
+7. Next.js Folder Structure (STRICT)
 src/
- ├─ components/
- │   ├─ ControlPanel.jsx
- │   ├─ MemoryBoard.jsx
- │   ├─ CodePanel.jsx
- │   ├─ VariableWatch.jsx
- │
- ├─ engine/
- │   ├─ dsaEngine.js
- │   ├─ memoryModel.js
- │   ├─ stepEmitter.js
- │
- ├─ visualizer/
- │   ├─ linkedListVisualizer.js
- │   ├─ arrayVisualizer.js
- │   ├─ stackVisualizer.js
- │   ├─ queueVisualizer.js
- │
- ├─ codeMap/
- │   ├─ linkedListCode.js
- │   ├─ stackCode.js
- │   ├─ queueCode.js
- │
- ├─ pages/
- │   ├─ LinkedListPage.jsx
- │   ├─ ArrayPage.jsx
- │   ├─ StackPage.jsx
- │   ├─ QueuePage.jsx
+│
+├─ app/
+│   ├─ layout.jsx
+│   ├─ page.jsx
+│   ├─ linked-list/
+│       ├─ singly/page.jsx
+│       ├─ doubly/page.jsx
+│       ├─ circular-singly/page.jsx
+│       ├─ circular-doubly/page.jsx
+│
+├─ components/
+│   ├─ ControlPanel.jsx
+│   ├─ MemoryBoard.jsx
+│   ├─ CodePanel.jsx
+│   ├─ VariableWatch.jsx
+│   ├─ Node.jsx
+│   ├─ Arrow.jsx
+│
+├─ engine/
+│   ├─ dsaEngine.js
+│   ├─ memoryModel.js
+│   ├─ stepEmitter.js
+│
+├─ visualizer/
+│   ├─ singlyVisualizer.js
+│   ├─ doublyVisualizer.js
+│   ├─ circularSinglyVisualizer.js
+│   ├─ circularDoublyVisualizer.js
+│
+├─ codeMap/
+│   ├─ singlyLL.cpp.js
+│   ├─ doublyLL.cpp.js
+│   ├─ circularSinglyLL.cpp.js
+│   ├─ circularDoublyLL.cpp.js
+│
+├─ hooks/
+│   └─ useStepRunner.js
 
-6. Execution Model (CRITICAL)
-
-Every operation is executed like this:
-
-User clicks operation
-→ dsaEngine starts algorithm
-→ after each logical step:
-      stepEmitter emits:
-         {
-           memoryState,
-           activeLine,
-           variables
-         }
-→ UI updates
-→ waits for Next Step click
+8. Memory Model
+export const memory = {
+  nodes: {},
+  head: null,
+  tail: null
+};
 
 
-No auto animation. Only step execution.
+Each node:
 
-7. Memory Model Format
-
-Memory is stored as objects.
-
-Example for Linked List:
-
-nodes = {
-  id1: { value: 10, next: id2 },
-  id2: { value: 20, next: null }
+{
+  value: 10,
+  next: node2,
+  prev: node0   // for doubly
 }
 
-head = id1
+9. Step Emitter Contract
+
+Every step must emit:
+
+{
+  activeLine,
+  variables,
+  memoryState
+}
+
+10. Role of C++ Code (codeMap)
+
+Each file stores real textbook C++ code as an array of lines.
+
+Example (singlyLL.cpp.js):
+
+export const insertHeadCode = [
+"Node* newNode = new Node(val);",
+"newNode->next = head;",
+"head = newNode;"
+];
 
 
-This memory object is what visualizer uses.
+These line numbers map to steps.
 
-8. What Each Panel Does
+11. UI Panels
 ControlPanel
 
-Choose DS
-
-Choose operation
-
-Input value
-
-Next Step button
-
-Reset
+Select list type, operation, input, Next Step.
 
 MemoryBoard
 
-Draws nodes/boxes/arrows based on memory model
+Shows nodes & arrows (next/prev/circular links).
 
 CodePanel
 
-Shows code
-
-Highlights activeLine
+Shows C++ code, highlights active line.
 
 VariableWatch
 
-Shows current variable values
+Shows head, tail, curr, prev, next.
 
-9. Linked List Operations to Implement
+12. Execution Flow
+Operation selected
+→ dsaEngine runs steps mirroring C++
+→ steps[] returned
+→ useStepRunner feeds steps
+→ UI updates per step
 
-Insert at head
+13. Visual Design
 
-Insert at tail
+White theme
 
-Delete value
+Tailark panels
 
-Reverse
+Nodes as boxes
 
-Traverse
+SVG arrows for next/prev
 
-Each must be broken into atomic steps.
+Circular arrows for circular lists
 
-10. Step Example (Insert at Head)
+14. Edge Cases (must demonstrate)
 
-Steps must be:
+Insert into empty
 
-Create new node
+Delete head/tail
 
-newNode.next = head
+Reverse single node
 
-head = newNode
+Circular pointer correctness
 
-Each step triggers UI update.
+Doubly prev pointer correctness
 
-11. Code Mapping
+15. What Makes This Project Strong
+Normal project	Yours
+One LL	Whole LL family
+Animation	Debugger style
+JS logic	Real C++ logic shown
+No memory view	Memory + variables + code
+16. Expected Learning Outcome
 
-Each step must map to a code line number.
+User should clearly understand:
 
-Example:
+How pointers behave in every type of linked list
 
-1: Node* newNode = new Node(val);
-2: newNode->next = head;
-3: head = newNode;
+How C++ code manipulates memory
 
-
-When step 2 runs → line 2 highlighted.
-
-12. Visual Theme
-
-White background
-
-Clean grid layout
-
-Tailark components for panels
-
-Minimal colors
-
-Nodes: soft borders, subtle shadow
-
-Pointers: SVG arrows
-
-13. Edge Cases to Handle
-
-Insert in empty
-
-Delete head
-
-Delete non-existent
-
-Reverse empty
-
-Stack underflow
-
-Queue overflow
-
-14. Non-Functional Requirements
-
-Fully client-side
-
-Modular code
-
-Easy to extend for new DS
-
-Smooth rendering
-
-No page reloads
-
-15. What This Project Is
-
-This is NOT:
-
-an animation tool
-
-a visualizer
-
-This is:
-
-A Visual Debugger for Data Structures
-
-16. Expected User Experience
-
-User should feel:
-
-“I can finally SEE what pointers and memory are doing.”
+Why edge cases matter
 
 17. Future Scope
 
-Doubly LL
+Stack/Queue using LL
 
-BST
+Trees
 
-Graph
-
-User can paste custom code
+Custom code input
