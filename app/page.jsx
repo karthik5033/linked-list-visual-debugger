@@ -3,23 +3,22 @@
 import Link from 'next/link';
 
 const AnimatedBackground = () => (
-  <div className="fixed inset-0 -z-10 overflow-hidden bg-[#0a0e1a]">
-    {/* Base Gradient */}
-    <div className="absolute inset-0 bg-gradient-to-br from-[#0a0e1a] to-[#0f1422]" />
+  <div className="fixed inset-0 -z-10 overflow-hidden bg-[#030303]">
+    {/* Base Gradient - Ultra Dark */}
+    <div className="absolute inset-0 bg-gradient-to-b from-black via-[#050505] to-[#0a0a0a]" />
 
-    {/* Infinite Moving Grid (Starfield effect) */}
+    {/* Infinite Moving Grid - Tech Style */}
     <div 
-      className="absolute inset-0 opacity-[0.15] animate-pan"
+      className="absolute inset-0 opacity-[0.25] animate-pan"
       style={{
-        backgroundImage: 'radial-gradient(#ffffff 1.5px, transparent 1.5px)',
+        backgroundImage: 'linear-gradient(to right, #1a1a1a 1px, transparent 1px), linear-gradient(to bottom, #1a1a1a 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }}
     />
-
-    {/* Deep Space Orbs */}
-    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-float" style={{ animationDuration: '8s' }} />
-    <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-float" style={{ animationDuration: '10s', animationDelay: '1s' }} />
-    <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-emerald-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-float" style={{ animationDuration: '12s', animationDelay: '2s' }} />
+    
+    {/* Subtle Radial Glows for depth */}
+    <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[120px] mix-blend-screen animate-float" style={{ animationDuration: '10s' }} />
+    <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] mix-blend-screen animate-float" style={{ animationDuration: '12s', animationDelay: '2s' }} />
   </div>
 );
 
@@ -27,198 +26,151 @@ export default function Home() {
   const linkedLists = [
     {
       title: 'Singly Linked List',
-      description: 'Master single-direction traversal with next pointers',
+      description: 'Single-direction traversal structure.',
       icon: '→',
       color: 'blue',
       href: '/linked-list/singly',
-      features: ['Insert at head/tail', 'Delete nodes', 'Traverse & reverse']
+      features: ['Head/Tail Insertion', 'Pointer Rewiring', 'Memory Deallocation']
     },
     {
       title: 'Doubly Linked List',
-      description: 'Navigate bidirectionally with prev and next pointers',
+      description: 'Bidirectional navigation system.',
       icon: '⇄',
       color: 'purple',
       href: '/linked-list/doubly',
-      features: ['Back & forward', 'Bidirectional traversal', 'Browser history simulation']
+      features: ['Prev/Next Pointers', 'History Simulation', 'Bidirectional Traversal']
     },
     {
-      title: 'Circular Singly Linked List',
-      description: 'Explore circular references where tail connects to head',
+      title: 'Circular Singly List',
+      description: 'Continuous loop architecture.',
       icon: '↻',
-      color: 'green',
+      color: 'emerald',
       href: '/linked-list/circular-singly',
-      features: ['Round-robin scheduling', 'Infinite loops', 'No NULL pointers']
+      features: ['Ring Topology', 'Infinite Cycle', 'Scheduler Logic']
     },
     {
-      title: 'Circular Doubly Linked List',
-      description: 'Master the most complex structure with circular bidirectional links',
+      title: 'Circular Doubly List',
+      description: 'Complex bidirectional cycle.',
       icon: '⟲',
       color: 'orange',
       href: '/linked-list/circular-doubly',
-      features: ['Full bidirectional cycles', 'Advanced navigation', 'Complex operations']
+      features: ['Advanced Cycles', 'Robust Navigation', 'Full Connectivity']
     }
   ];
 
-  const getColorClasses = (color) => {
-    const colors = {
+  // Pro Theme Colors
+  const getTheme = (color) => {
+    const themes = {
       blue: {
-        gradient: 'from-blue-500 to-blue-600/50',
-        text: 'text-blue-500',
-        shadow: 'hover:shadow-blue-500/20',
-        border: 'hover:border-blue-500',
-        bg: 'bg-blue-500',
-        btnShadow: 'shadow-blue-500/30',
-        before: 'before:via-blue-500'
+        border: 'group-hover:border-blue-500/50',
+        glow: 'group-hover:shadow-[0_0_40px_-10px_rgba(59,130,246,0.3)]',
+        iconBg: 'bg-blue-500/10 text-blue-400',
+        text: 'text-blue-400',
+        btn: 'bg-blue-600 hover:bg-blue-500'
       },
       purple: {
-        gradient: 'from-purple-500 to-purple-600/50',
-        text: 'text-purple-500',
-        shadow: 'hover:shadow-purple-500/20',
-        border: 'hover:border-purple-500',
-        bg: 'bg-purple-500',
-        btnShadow: 'shadow-purple-500/30',
-        before: 'before:via-purple-500'
+        border: 'group-hover:border-purple-500/50',
+        glow: 'group-hover:shadow-[0_0_40px_-10px_rgba(168,85,247,0.3)]',
+        iconBg: 'bg-purple-500/10 text-purple-400',
+        text: 'text-purple-400',
+        btn: 'bg-purple-600 hover:bg-purple-500'
       },
-      green: {
-        gradient: 'from-green-500 to-green-600/50',
-        text: 'text-green-500',
-        shadow: 'hover:shadow-green-500/20',
-        border: 'hover:border-green-500',
-        bg: 'bg-green-500',
-        btnShadow: 'shadow-green-500/30',
-        before: 'before:via-green-500'
+      emerald: {
+        border: 'group-hover:border-emerald-500/50',
+        glow: 'group-hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]',
+        iconBg: 'bg-emerald-500/10 text-emerald-400',
+        text: 'text-emerald-400',
+        btn: 'bg-emerald-600 hover:bg-emerald-500'
       },
       orange: {
-        gradient: 'from-orange-500 to-orange-600/50',
-        text: 'text-orange-500',
-        shadow: 'hover:shadow-orange-500/20',
-        border: 'hover:border-orange-500',
-        bg: 'bg-orange-500',
-        btnShadow: 'shadow-orange-500/30',
-        before: 'before:via-orange-500'
+        border: 'group-hover:border-orange-500/50',
+        glow: 'group-hover:shadow-[0_0_40px_-10px_rgba(249,115,22,0.3)]',
+        iconBg: 'bg-orange-500/10 text-orange-400',
+        text: 'text-orange-400',
+        btn: 'bg-orange-600 hover:bg-orange-500'
       }
     };
-    return colors[color];
+    return themes[color];
   };
 
   return (
-    <div className="min-h-screen text-gray-50 py-12 px-8 relative isolate">
+    <div className="min-h-screen font-sans text-gray-200 selection:bg-white/20">
       <AnimatedBackground />
 
-      <div className="max-w-7xl mx-auto">
-        {/* Header - Opacity removed to prevent blank page */}
-        <header className="text-center mb-16 animate-fade-in-down">
-          <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent tracking-tight">
-            Linked List Visual Debugger
+      <main className="max-w-7xl mx-auto px-6 py-20">
+        
+        {/* Hero Section */}
+        <div className="text-center mb-24 animate-fade-in-down">
+          <div className="inline-block mb-4 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
+            <span className="text-xs font-mono tracking-widest text-gray-400 uppercase">
+              DSA Visualizer v2.0
+            </span>
+          </div>
+          
+          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent">
+            Mem<span className="text-gray-600">ory</span>.cpp
           </h1>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Step through real C++ linked list algorithms line-by-line. Watch memory allocations,
-            pointer updates, and variable changes in real-time as you debug like a professional developer.
+          
+          <p className="max-w-2xl mx-auto text-lg text-gray-500 font-light leading-relaxed">
+            A professional-grade debugger for visualizing <span className="text-gray-300 font-mono">Linked List</span> operations in real-time. Watch pointer allocations on the heap.
           </p>
-        </header>
+        </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
-          {linkedLists.map((list, index) => {
-            const colors = getColorClasses(list.color);
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {linkedLists.map((item, index) => {
+            const theme = getTheme(item.color);
             return (
-              <Link
-                key={list.href}
-                href={list.href}
-                className="group animate-fade-in-up"
+              <Link 
+                key={item.href} 
+                href={item.href}
+                className="group relative block animate-fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'backwards' }}
               >
+                {/* Glow Effect */}
+                <div className={`absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 blur-md`} />
+                
+                {/* Card Content */}
                 <div className={`
-                  relative bg-[#1a1f35]/80 backdrop-blur-sm border border-[#2d3548] rounded-2xl p-8
-                  transition-all duration-500 hover:-translate-y-2
-                  hover:shadow-2xl ${colors.shadow} ${colors.border}
-                  before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px]
-                  before:bg-gradient-to-r before:from-transparent ${colors.before} before:to-transparent
-                  before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500
+                  relative h-full bg-[#0a0a0a] border border-white/10 rounded-xl p-8
+                  transition-all duration-300 ${theme.border} ${theme.glow}
+                  hover:-translate-y-1
                 `}>
-                  {/* Card Header */}
-                  <div className="flex items-center gap-5 mb-6">
-                    <div className={`
-                      w-14 h-14 rounded-2xl flex items-center justify-center text-2xl
-                      bg-gradient-to-br ${colors.gradient}
-                      transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6
-                    `}>
-                      {list.icon}
+                  <div className="flex justify-between items-start mb-8">
+                    <div className={`w-12 h-12 rounded-lg ${theme.iconBg} flex items-center justify-center text-2xl font-mono`}>
+                      {item.icon}
                     </div>
-                    <div className="flex-1">
-                      <h2 className="text-2xl font-bold mb-1 tracking-tight">
-                        {list.title}
-                      </h2>
-                      <p className="text-sm text-gray-400 leading-relaxed">
-                        {list.description}
-                      </p>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                       <span className={`text-xs font-mono border border-current px-2 py-1 rounded ${theme.text}`}>
+                         ./RUN
+                       </span>
                     </div>
                   </div>
 
-                  {/* Features */}
-                  <ul className="space-y-3 mb-7">
-                    {list.features.map((feature, idx) => (
-                      <li
-                        key={idx}
-                        className="flex items-center gap-3 text-gray-400 text-sm transition-colors hover:text-gray-200"
-                      >
-                        <span className={`${colors.text} font-semibold text-lg`}>→</span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="text-2xl font-bold text-white mb-2 tracking-tight group-hover:text-white/90 transition-colors">
+                    {item.title}
+                  </h3>
+                  
+                  <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                    {item.description}
+                  </p>
 
-                  {/* CTA Button */}
-                  <div className={`
-                    inline-flex items-center gap-2 px-7 py-3.5
-                    ${colors.bg} text-white rounded-xl font-semibold text-sm
-                    transition-all duration-300 group-hover:translate-x-1
-                    shadow-lg ${colors.btnShadow}
-                    relative overflow-hidden
-                    before:absolute before:inset-0 before:bg-gradient-to-r 
-                    before:from-transparent before:via-white/20 before:to-transparent
-                    before:-translate-x-full group-hover:before:translate-x-full
-                    before:transition-transform before:duration-700
-                  `}>
-                    Start Learning
-                    <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  <div className="border-t border-white/5 pt-6">
+                    <ul className="grid grid-cols-1 gap-2">
+                       {item.features.map((feat, i) => (
+                         <li key={i} className="flex items-center gap-2 text-xs text-gray-400 font-mono">
+                           <span className={`w-1 h-1 rounded-full ${theme.bg || theme.text.replace('text', 'bg')}`} />
+                           {feat}
+                         </li>
+                       ))}
+                    </ul>
                   </div>
                 </div>
               </Link>
             );
           })}
         </div>
-
-        {/* Features Section */}
-        <div className="bg-[#1a1f35]/80 backdrop-blur-sm border border-[#2d3548] rounded-3xl p-14 animate-fade-in-up" style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}>
-          <h2 className="text-4xl font-bold text-center mb-12 tracking-tight">
-            What Makes This Different?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-5xl mx-auto">
-            {[
-              { icon: '🔍', title: 'Debugger Style', desc: 'Step through code line-by-line, not just watch animations', color: 'blue' },
-              { icon: '💻', title: 'Real C++ Code', desc: 'See actual textbook C++ algorithms in action', color: 'green' },
-              { icon: '🧠', title: 'Memory Visualization', desc: 'Watch memory, pointers, and variables change in real-time', color: 'purple' }
-            ].map((feature, idx) => {
-              const colors = getColorClasses(feature.color);
-              return (
-                <div
-                  key={idx}
-                  className={`
-                    text-center p-8 rounded-2xl bg-[#111827]/50 border border-transparent
-                    transition-all duration-500 hover:-translate-y-1
-                    ${colors.border} hover:bg-[#242b42]
-                  `}
-                >
-                  <span className="text-5xl block mb-5">{feature.icon}</span>
-                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
-  )
+  );
 }
