@@ -1,61 +1,81 @@
-/**
- * useStepRunner Hook
- * Manages step-by-step execution state
- */
-
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
-export function useStepRunner(steps = []) {
-  const [currentStepIndex, setCurrentStepIndex] = useState(-1);
-  const [isRunning, setIsRunning] = useState(false);
+export const useStepRunner = (steps = []) => {
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const timerRef = useRef(null);
 
-  const currentStep = currentStepIndex >= 0 && currentStepIndex < steps.length 
-    ? steps[currentStepIndex] 
-    : null;
-
-  const nextStep = useCallback(() => {
-    if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex(prev => prev + 1);
-      return true;
+  // If steps array is cleared, reset index
+  useEffect(() => {
+    if (steps.length === 0) {
+      setCurrentStepIndex(0);
+      setIsPlaying(false);
     }
-    return false;
-  }, [currentStepIndex, steps.length]);
+  }, [steps]);
+
+  // Current step object
+  const currentStep = steps[currentStepIndex];
+  const totalSteps = steps.length;
+  const hasNext = currentStepIndex < totalSteps - 1;
+  const hasPrev = currentStepIndex > 0;
+
+  // Navigation handlers
+  const nextStep = useCallback(() => {
+    setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
+  }, [steps.length]);
 
   const prevStep = useCallback(() => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(prev => prev - 1);
-      return true;
-    }
-    return false;
-  }, [currentStepIndex]);
+    setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
+  }, []);
 
   const reset = useCallback(() => {
-    setCurrentStepIndex(-1);
-    setIsRunning(false);
-  }, []);
-
-  const start = useCallback(() => {
+    setIsPlaying(false);
     setCurrentStepIndex(0);
-    setIsRunning(true);
   }, []);
 
-  const hasNext = currentStepIndex < steps.length - 1;
-  const hasPrev = currentStepIndex > 0;
-  const isComplete = currentStepIndex === steps.length - 1;
+  // Playback logic
+  const start = useCallback(() => {
+    if (currentStepIndex >= steps.length - 1) {
+      setCurrentStepIndex(0);
+    }
+    setIsPlaying(true);
+  }, [currentStepIndex, steps.length]);
+
+  const pause = useCallback(() => {
+    setIsPlaying(false);
+  }, []);
+
+  useEffect(() => {
+    if (isPlaying) {
+      timerRef.current = setInterval(() => {
+        setCurrentStepIndex((prev) => {
+          if (prev >= steps.length - 1) {
+            setIsPlaying(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000); // 1 second per step
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPlaying, steps.length]);
 
   return {
     currentStep,
     currentStepIndex,
+    totalSteps,
     nextStep,
     prevStep,
-    reset,
     start,
+    pause,
+    reset,
+    isPlaying,
     hasNext,
-    hasPrev,
-    isRunning,
-    isComplete,
-    totalSteps: steps.length
+    hasPrev
   };
-}
+};

@@ -9,6 +9,7 @@ export class MemoryModel {
     this.nodes = {}; // { nodeId: { value, next, prev } }
     this.head = null;
     this.tail = null;
+    this.curr = null; // Current position (for DLL browser history)
     this.nodeCounter = 0;
   }
 
@@ -58,12 +59,18 @@ export class MemoryModel {
     this.tail = nodeId;
   }
 
+  // Set current pointer (for DLL)
+  setCurr(nodeId) {
+    this.curr = nodeId;
+  }
+
   // Get current state snapshot
   getState() {
     return {
-      nodes: { ...this.nodes },
+      nodes: JSON.parse(JSON.stringify(this.nodes)), // Deep copy to persist history
       head: this.head,
       tail: this.tail,
+      curr: this.curr,
     };
   }
 
@@ -72,6 +79,7 @@ export class MemoryModel {
     this.nodes = {};
     this.head = null;
     this.tail = null;
+    this.curr = null;
     this.nodeCounter = 0;
   }
 
@@ -80,13 +88,13 @@ export class MemoryModel {
     const result = [];
     let current = this.head;
     const visited = new Set();
-    
+
     while (current && !visited.has(current)) {
       visited.add(current);
       result.push(this.nodes[current]);
       current = this.nodes[current]?.next;
     }
-    
+
     return result;
   }
 }

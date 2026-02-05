@@ -1,49 +1,18 @@
 'use client';
 
-import { Terminal } from 'lucide-react';
-
-export default function CodePanel({ code, activeLine, title = "C++ Code" }) {
-  if (!code || code.length === 0) {
-     return (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm h-full flex flex-col p-8 items-center justify-center text-center">
-          <Terminal className="w-12 h-12 text-gray-200 mb-4" />
-          <p className="text-gray-400 text-sm">Select an operation to view its C++ implementation.</p>
-        </div>
-     )
-  }
-
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm h-full flex flex-col">
-       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-        <Terminal className="w-4 h-4 text-gray-400" />
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-          Source Code
-        </h2>
-       </div>
-      
-      <div className="flex-1 overflow-auto p-4 bg-white font-mono text-[13px] leading-6">
-          {code.map((line, index) => (
-            <div
-              key={index}
-              className={`group flex items-center px-2 py-0.5 rounded transition-all duration-200 ${
-                index === activeLine 
-                  ? 'bg-yellow-100/50 text-gray-900 border-l-2 border-yellow-400 -ml-[2px]' 
-                  : 'text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              <span className={`inline-block w-8 text-[11px] select-none text-right mr-4 ${index === activeLine ? 'text-yellow-600 font-bold' : 'text-gray-300'}`}>
-                {index + 1}
-              </span>
-              <code className={`${index === activeLine ? 'font-medium' : ''}`}>
-                <span dangerouslySetInnerHTML={{ __html: highlightSyntax(line) }} />
-              </code>
+export default function CodePanel({ code = [], activeLine, title = 'C++ Code' }) {
+    return (
+        <div className="bg-[#1f2937] rounded-xl border border-[#374151] overflow-hidden flex flex-col h-full shadow-lg">
+            <div className="bg-[#111827] px-4 py-3 border-b border-[#374151] flex justify-between items-center">
+                <h3 className="font-mono text-sm font-bold text-gray-300">{title}</h3>
+                <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                </div>
             </div>
-          ))}
-      </div>
-    </div>
-  );
-}
 
+<<<<<<< HEAD
 // Simple syntax highlighter for C++ appearance
 function highlightSyntax(code) {
   // Process steps in safe order: Keywords -> Variables -> Operators -> Comments
@@ -52,4 +21,38 @@ function highlightSyntax(code) {
     .replace(/\b(head|tail|next|prev|data|value)\b/g, '<span class="text-blue-600">$&</span>') // Variables
     .replace(/(=|==|!=|->|\.|\+\+)/g, '<span class="text-gray-500">$&</span>') // Operators
     .replace(/\/\/.*/g, '<span class="text-gray-400 italic">$&</span>'); // Comments (Last to wrap everything)
+=======
+            <div className="flex-1 p-4 overflow-auto font-mono text-sm bg-[#0f1422]">
+                {code.length === 0 ? (
+                    <div className="text-gray-500 italic text-center mt-10">
+            // No operation running
+                    </div>
+                ) : (
+                    <table className="w-full border-collapse">
+                        <tbody>
+                            {code.map((line, index) => {
+                                const isHighlight = activeLine === index + 1; // activeLine is 1-based usually
+                                return (
+                                    <tr
+                                        key={index}
+                                        className={`${isHighlight ? 'bg-blue-500/20' : 'hover:bg-gray-800/30'} transition-colors duration-150`}
+                                    >
+                                        <td className="w-8 text-gray-600 text-right pr-4 select-none border-r border-[#374151]">
+                                            {index + 1}
+                                        </td>
+                                        <td className="pl-4 py-0.5">
+                                            <span className={`${isHighlight ? 'text-blue-300 font-bold' : 'text-gray-300'}`}>
+                                                {line}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+        </div>
+    );
+>>>>>>> f8ff2203ae70110c88cd4b2f078d9e627d3d8095
 }

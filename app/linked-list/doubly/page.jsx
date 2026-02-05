@@ -1,138 +1,39 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, GitCommit } from 'lucide-react';
-import ControlPanel from '@/components/ControlPanel';
-import MemoryBoard from '@/components/MemoryBoard';
-import CodePanel from '@/components/CodePanel';
-import VariableWatch from '@/components/VariableWatch';
-import { useStepRunner } from '@/hooks/useStepRunner';
+import { useRef } from 'react';
 import { DSAEngine } from '@/engine/dsaEngine';
-import { getDoublyLLCode } from '@/codeMap/doublyLL.cpp.js';
+import LinkedListLayout from '@/components/LinkedListLayout';
+import DoublyConcept from '@/components/concept/DoublyConcept';
+import DoublyLinearStructure from '@/components/structure/DoublyLinearStructure';
+import BrowserHistoryApp from '@/components/application/BrowserHistoryApp';
 
-export default function DoublyLinkedListPage() {
-  const [engine] = useState(() => new DSAEngine());
-  const [steps, setSteps] = useState([]);
-  const [currentCode, setCurrentCode] = useState([]);
-  const [currentOperation, setCurrentOperation] = useState('');
+export default function DoublyPage() {
+    // Separate engines for separate contexts
+    const structureEngine = useRef(null);
+    if (!structureEngine.current) structureEngine.current = new DSAEngine();
 
-  const {
-    currentStep,
-    currentStepIndex,
-    nextStep,
-    prevStep,
-    reset: resetRunner,
-    start,
-    hasNext,
-    hasPrev,
-    isRunning,
-    totalSteps
-  } = useStepRunner(steps);
+    const appEngine = useRef(null);
+    if (!appEngine.current) appEngine.current = new DSAEngine();
 
-  const handleExecute = (operation, params) => {
-    const code = getDoublyLLCode(operation);
-    setCurrentCode(code);
-    setCurrentOperation(operation);
-    const generatedSteps = engine.executeOperation('doubly', operation, params);
-    setSteps(generatedSteps);
-    setTimeout(() => start(), 100);
-  };
-
-  const handleReset = () => {
-    resetRunner();
-    engine.reset();
-    setSteps([]);
-    setCurrentCode([]);
-    setCurrentOperation('');
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Pro Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-[1920px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-gray-500 hover:text-black transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div className="h-6 w-px bg-gray-200" />
-            <h1 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <GitCommit className="w-5 h-5" />
-              Doubly Linked List
-            </h1>
-          </div>
-          <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
-             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-             DEBUGGER ONLINE
-          </div>
-        </div>
-      </header>
-
-      {/* Main Workspace */}
-      <main className="flex-1 p-6 overflow-hidden max-w-[1920px] mx-auto w-full">
-        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-8rem)]">
-          
-          {/* Left Panel: Controls & Variables */}
-          <div className="col-span-3 flex flex-col gap-6 h-full overflow-hidden">
-            <div className="flex-none">
-              <ControlPanel
-                listType="doubly"
-                onExecute={handleExecute}
-                onNextStep={nextStep}
-                onPrevStep={prevStep}
-                onReset={handleReset}
-                hasNext={hasNext}
-                hasPrev={hasPrev}
-                isRunning={isRunning}
-                currentStepIndex={currentStepIndex}
-                totalSteps={totalSteps}
-              />
-            </div>
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              <VariableWatch variables={currentStep?.variables || {}} />
-            </div>
-          </div>
-
-          {/* Center Panel: Visualization */}
-          <div className="col-span-6 flex flex-col h-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div className="border-b border-gray-100 p-4 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Memory Graph</h2>
-              <div className="flex gap-2">
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
-                  <div className="w-2 h-2 bg-black rounded-sm" /> NODE
-                </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-sm" /> ACTIVE
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] p-8">
-              <MemoryBoard
-                memoryState={currentStep?.memoryState || engine.getMemoryState()}
-                highlightedNodes={[]} // Logic for highlighting can be enhanced later
-              />
-            </div>
-            {currentStep?.description && (
-              <div className="p-4 border-t border-gray-100 bg-white">
-                <p className="text-sm text-gray-700 font-mono">
-                  <span className="text-black font-bold mr-2">{'>'}</span>
-                  {currentStep.description}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Panel: Code */}
-          <div className="col-span-3 h-full overflow-hidden">
-            <CodePanel
-               code={currentCode}
-               activeLine={currentStep?.activeLine}
-               title="Algorithm Source"
-            />
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+    return (
+        <LinkedListLayout
+            title="Doubly Linked List"
+            subtitle="Explore bidirectional navigation and browser history"
+            icon="⇄"
+            color="purple"
+        >
+            {(mode, setMode) => {
+                switch (mode) {
+                    case 'concept':
+                        return <DoublyConcept onStartLearning={() => setMode('structure')} />;
+                    case 'structure':
+                        return <DoublyLinearStructure engine={structureEngine.current} />;
+                    case 'application':
+                        return <BrowserHistoryApp engine={appEngine.current} />;
+                    default:
+                        return <DoublyConcept onStartLearning={() => setMode('structure')} />;
+                }
+            }}
+        </LinkedListLayout>
+    );
 }
