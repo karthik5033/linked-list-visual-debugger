@@ -1,0 +1,92 @@
+/**
+ * Memory Model
+ * Maintains the state of nodes, pointers, and variables
+ * This is NOT UI - this is pure data representation
+ */
+
+export class MemoryModel {
+  constructor() {
+    this.nodes = {}; // { nodeId: { value, next, prev } }
+    this.head = null;
+    this.tail = null;
+    this.nodeCounter = 0;
+  }
+
+  // Create a new node and return its ID
+  createNode(value) {
+    const nodeId = `node_${this.nodeCounter++}`;
+    this.nodes[nodeId] = {
+      id: nodeId,
+      value: value,
+      next: null,
+      prev: null, // for doubly linked lists
+    };
+    return nodeId;
+  }
+
+  // Get node by ID
+  getNode(nodeId) {
+    return this.nodes[nodeId];
+  }
+
+  // Set next pointer
+  setNext(nodeId, nextNodeId) {
+    if (this.nodes[nodeId]) {
+      this.nodes[nodeId].next = nextNodeId;
+    }
+  }
+
+  // Set prev pointer (for doubly linked lists)
+  setPrev(nodeId, prevNodeId) {
+    if (this.nodes[nodeId]) {
+      this.nodes[nodeId].prev = prevNodeId;
+    }
+  }
+
+  // Delete a node
+  deleteNode(nodeId) {
+    delete this.nodes[nodeId];
+  }
+
+  // Set head pointer
+  setHead(nodeId) {
+    this.head = nodeId;
+  }
+
+  // Set tail pointer
+  setTail(nodeId) {
+    this.tail = nodeId;
+  }
+
+  // Get current state snapshot
+  getState() {
+    return {
+      nodes: { ...this.nodes },
+      head: this.head,
+      tail: this.tail,
+    };
+  }
+
+  // Reset the entire memory
+  reset() {
+    this.nodes = {};
+    this.head = null;
+    this.tail = null;
+    this.nodeCounter = 0;
+  }
+
+  // Get all nodes as array (for visualization)
+  getNodesArray() {
+    const result = [];
+    let current = this.head;
+    const visited = new Set();
+    
+    while (current && !visited.has(current)) {
+      visited.add(current);
+      result.push(this.nodes[current]);
+      current = this.nodes[current]?.next;
+    }
+    
+    return result;
+  }
+}
