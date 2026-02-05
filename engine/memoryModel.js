@@ -64,6 +64,23 @@ export class MemoryModel {
     this.curr = nodeId;
   }
 
+  // Update node value
+  updateValue(nodeId, newValue) {
+    if (this.nodes[nodeId]) {
+      this.nodes[nodeId].value = newValue;
+    }
+  }
+
+  // Get next node ID
+  getNext(nodeId) {
+    return this.nodes[nodeId]?.next;
+  }
+
+  // Get prev node ID
+  getPrev(nodeId) {
+    return this.nodes[nodeId]?.prev;
+  }
+
   // Get current state snapshot
   getState() {
     return {

@@ -16,8 +16,8 @@ export default function MemoryBoard({
     const getNodesArray = () => {
         const result = [];
         let current = head;
-        const visited = new Set(); // Prevent infinite loops
-        let limit = 20; // Safety limit
+        const visited = new Set();
+        let limit = 20;
 
         while (current && nodes[current] && !visited.has(current) && limit > 0) {
             visited.add(current);
@@ -30,14 +30,17 @@ export default function MemoryBoard({
 
     const nodeList = getNodesArray();
 
+    const isCircular = type.includes('circular');
+    const isDoubly = type.includes('doubly');
+
     return (
-        <div className="bg-[#1f2937] rounded-xl border border-[#374151] p-6 h-full shadow-inner flex flex-col">
-            <h3 className="text-gray-400 font-bold mb-8 flex items-center gap-2">
+        <div className="bg-[#1f2937] rounded-xl border border-[#374151] p-6 h-full shadow-inner flex flex-col relative">
+            <h3 className="text-gray-400 font-bold mb-8 flex items-center gap-2 relative z-10">
                 <span>{icon}</span> {title}
             </h3>
 
-            <div className="flex-1 flex items-center content-center overflow-x-auto overflow-y-hidden pb-4 custom-scrollbar">
-                <div className="flex items-center px-8 min-w-max h-32">
+            <div className="flex-1 flex items-center content-center overflow-x-auto overflow-y-visible pb-4 custom-scrollbar relative">
+                <div className="flex items-center px-8 min-w-max h-64 relative">
                     {head === null ? (
                         <div className="text-gray-500 italic flex items-center gap-2">
                             <div className="w-16 h-16 border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center">
@@ -46,12 +49,7 @@ export default function MemoryBoard({
                             <span className="text-sm">List is empty</span>
                         </div>
                     ) : (
-                        <div className="flex items-center">
-                            {/* Head Pointer Visualization */}
-                            <div className="mr-4 flex flex-col items-center opacity-50">
-                                <div className="text-xs mb-1 font-mono text-green-500">head</div>
-                                <div className="w-8 h-0.5 bg-green-500 mb-1"></div>
-                            </div>
+                        <div className="flex items-center relative">
 
                             <AnimatePresence>
                                 {nodeList.map((node, index) => (
@@ -68,12 +66,89 @@ export default function MemoryBoard({
                                 ))}
                             </AnimatePresence>
 
-                            {/* Final Null Pointer */}
-                            <div className="flex items-center">
-                                <div className="w-12 h-12 bg-gray-800/50 border-2 border-dashed border-gray-600 rounded flex items-center justify-center ml-1">
-                                    <span className="text-xs font-mono text-gray-500">NULL</span>
+                            {/* Final Element: NULL or Circular Link */}
+                            {!isCircular && (
+                                <div className="flex items-center">
+                                    <div className="w-12 h-12 bg-gray-800/50 border-2 border-dashed border-gray-600 rounded flex items-center justify-center ml-1">
+                                        <span className="text-xs font-mono text-gray-500">NULL</span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+
+                            {/* Circular SVG Overlay */}
+                            {isCircular && nodeList.length > 0 && (
+                                <svg
+                                    className="absolute top-0 left-0 pointer-events-none overflow-visible"
+                                    style={{
+                                        width: `${nodeList.length * 150}px`,
+                                        height: '300px'
+                                    }}
+                                >
+                                    <defs>
+                                        <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                            <path d="M0,0 L10,5 L0,10 Z" fill="#10b981" />
+                                        </marker>
+                                        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                            <path d="M0,0 L10,5 L0,10 Z" fill="#3b82f6" />
+                                        </marker>
+                                    </defs>
+
+                                    {nodeList.length === 1 ? (
+                                        // Single node: self-loop on the right side
+                                        <>
+                                            {/* Next pointer self-loop */}
+                                            <path
+                                                d="M 87 90 C 140 90, 160 120, 160 160 C 160 200, 140 230, 87 230 C 60 230, 50 210, 50 180"
+                                                fill="none"
+                                                stroke="#10b981"
+                                                strokeWidth="2.5"
+                                                strokeDasharray="6,4"
+                                                markerEnd="url(#arrow-green)"
+                                                opacity="0.7"
+                                            />
+                                            {/* Prev pointer self-loop - for Doubly */}
+                                            {isDoubly && (
+                                                <path
+                                                    d="M 63 50 C 40 50, 30 70, 30 90 C 30 110, 40 130, 63 130"
+                                                    fill="none"
+                                                    stroke="#3b82f6"
+                                                    strokeWidth="2.5"
+                                                    strokeDasharray="6,4"
+                                                    markerEnd="url(#arrow-blue)"
+                                                    opacity="0.5"
+                                                />
+                                            )}
+                                        </>
+                                    ) : (
+                                        // Multiple nodes: arc from tail to head
+                                        <>
+                                            {/* Next Pointer Loop (Bottom arc) - from tail to head */}
+                                            <path
+                                                d={`M ${(nodeList.length - 1) * 150 + 87} 90 Q ${nodeList.length * 75} 185, 63 90`}
+                                                fill="none"
+                                                stroke="#10b981"
+                                                strokeWidth="2.5"
+                                                strokeDasharray="6,4"
+                                                markerEnd="url(#arrow-green)"
+                                                opacity="0.7"
+                                            />
+
+                                            {/* Prev Pointer Loop (Top arc) - from head to tail - for Doubly */}
+                                            {isDoubly && (
+                                                <path
+                                                    d={`M 87 30 Q ${nodeList.length * 75} -30, ${(nodeList.length - 1) * 150 + 63} 30`}
+                                                    fill="none"
+                                                    stroke="#3b82f6"
+                                                    strokeWidth="2.5"
+                                                    strokeDasharray="6,4"
+                                                    markerEnd="url(#arrow-blue)"
+                                                    opacity="0.5"
+                                                />
+                                            )}
+                                        </>
+                                    )}
+                                </svg>
+                            )}
                         </div>
                     )}
                 </div>
@@ -82,17 +157,17 @@ export default function MemoryBoard({
     );
 }
 
-const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = true, type = 'singly' }) => {
+const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = true, type }) => {
     return (
-        <div className="relative flex items-center">
+        <div className="relative flex items-center" style={{ width: '150px' }}>
             {/* Node Circle/Box */}
             <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.5, opacity: 0 }}
                 className={`
-          relative z-10 min-w-[5rem] h-20 px-2 rounded-full flex items-center justify-center border-4 
-          shadow-xl transition-all duration-300
+          relative z-10 w-24 h-20 px-2 rounded-xl flex items-center justify-center border-4 
+          shadow-xl transition-all duration-300 mx-auto
           ${isHighlighted
                         ? 'bg-blue-600 border-blue-300 shadow-blue-500/50 scale-110'
                         : isCurr
@@ -101,7 +176,7 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
                     }
         `}
             >
-                <span className="text-lg font-bold font-mono text-white max-w-[8rem] truncate text-center">
+                <span className="text-sm font-bold font-mono text-white text-center break-words leading-tight">
                     {node.formattedValue !== undefined ? node.formattedValue : node.value}
                 </span>
 
@@ -132,21 +207,21 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
 
             {/* Pointers (Arrows) */}
             {showNextPointer && (
-                <div className="mx-2 text-gray-500 flex flex-col items-center justify-center gap-0.5">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[54px] flex flex-col items-center justify-center gap-1">
                     {/* Forward Arrow (Next) */}
-                    <div className="flex items-center text-gray-500">
-                        <svg width="60" height="12" viewBox="0 0 60 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="0" y1="6" x2="54" y2="6" stroke="currentColor" strokeWidth="2" />
-                            <path d="M50 1L58 6L50 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <div className="flex items-center text-gray-500 w-full">
+                        <svg width="100%" height="8" viewBox="0 0 24 8" fill="none" preserveAspectRatio="none">
+                            <line x1="0" y1="4" x2="20" y2="4" stroke="currentColor" strokeWidth="2" />
+                            <path d="M18 1L23 4L18 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
 
                     {/* Backward Arrow (Prev) - Only for Doubly */}
-                    {type === 'doubly' && (
-                        <div className="flex items-center text-gray-600">
-                            <svg width="60" height="12" viewBox="0 0 60 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <line x1="6" y1="6" x2="60" y2="6" stroke="currentColor" strokeWidth="2" />
-                                <path d="M10 1L2 6L10 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    {type.includes('doubly') && (
+                        <div className="flex items-center text-gray-600 w-full">
+                            <svg width="100%" height="8" viewBox="0 0 24 8" fill="none" preserveAspectRatio="none">
+                                <line x1="4" y1="4" x2="24" y2="4" stroke="currentColor" strokeWidth="2" />
+                                <path d="M6 1L1 4L6 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </div>
                     )}

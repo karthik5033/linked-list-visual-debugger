@@ -190,7 +190,7 @@ export default function BrowserHistoryApp({ engine }) {
             {/* RIGHT PANEL: DEBUGGER */}
             <div className="flex-1 flex flex-col gap-6 min-w-[400px]">
                 {/* Visualizer */}
-                <div className="flex-1 bg-[#1f2937] rounded-xl border border-[#374151] p-1 flex flex-col shadow-inner min-h-[400px]">
+                <div className="flex-1 bg-[#1f2937] rounded-xl border border-[#374151] p-1 flex flex-col shadow-inner min-h-[400px] relative">
                     <div className="absolute top-4 right-4 z-10">
                         <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded border border-purple-500/30">
                             Doubly Linked List
@@ -214,7 +214,7 @@ export default function BrowserHistoryApp({ engine }) {
                     />
                 </div>
 
-                {/* Step Controls (Mini) */}
+                {/* Step Controls */}
                 {steps.length > 0 && (
                     <div className="bg-[#111827] p-3 rounded-lg border border-[#374151] flex justify-between items-center animate-fade-in-up">
                         <div className="text-gray-400 text-xs font-mono">
