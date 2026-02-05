@@ -12,17 +12,6 @@ export default function CodePanel({ code = [], activeLine, title = 'C++ Code' })
                 </div>
             </div>
 
-<<<<<<< HEAD
-// Simple syntax highlighter for C++ appearance
-function highlightSyntax(code) {
-<<<<<<< Updated upstream
-  // Process steps in safe order: Keywords -> Variables -> Operators -> Comments
-  return code
-    .replace(/\b(Node|int|void|if|else|while|return|new|delete|struct|public|private)\b/g, '<span class="text-purple-600 font-semibold">$&</span>') // Keywords (removed 'class')
-    .replace(/\b(head|tail|next|prev|data|value)\b/g, '<span class="text-blue-600">$&</span>') // Variables
-    .replace(/(=|==|!=|->|\.|\+\+)/g, '<span class="text-gray-500">$&</span>') // Operators
-    .replace(/\/\/.*/g, '<span class="text-gray-400 italic">$&</span>'); // Comments (Last to wrap everything)
-=======
             <div className="flex-1 p-4 overflow-auto font-mono text-sm bg-[#0f1422]">
                 {code.length === 0 ? (
                     <div className="text-gray-500 italic text-center mt-10">
@@ -41,10 +30,9 @@ function highlightSyntax(code) {
                                         <td className="w-8 text-gray-600 text-right pr-4 select-none border-r border-[#374151]">
                                             {index + 1}
                                         </td>
-                                        <td className="pl-4 py-0.5">
-                                            <span className={`${isHighlight ? 'text-blue-300 font-bold' : 'text-gray-300'}`}>
-                                                {line}
-                                            </span>
+                                        <td className="pl-4 py-0.5 text-gray-300">
+                                            {/* Use syntax highlighting */}
+                                            <span dangerouslySetInnerHTML={{ __html: highlightSyntax(line) }} />
                                         </td>
                                     </tr>
                                 );
@@ -55,8 +43,10 @@ function highlightSyntax(code) {
             </div>
         </div>
     );
->>>>>>> f8ff2203ae70110c88cd4b2f078d9e627d3d8095
-=======
+}
+
+// Simple syntax highlighter for C++ appearance
+function highlightSyntax(code) {
   if (!code) return '';
 
   // 1. Escape HTML entities first
@@ -77,12 +67,12 @@ function highlightSyntax(code) {
 
   // 3. Mask Keywords
   safeCode = safeCode.replace(/\b(Node|int|void|if|else|while|return|new|delete|struct|public|private)\b/g, (match) => {
-    return mask(`<span class="text-purple-600 font-semibold">${match}</span>`);
+    return mask(`<span class="text-purple-400 font-semibold">${match}</span>`); // Adjusted color for dark mode
   });
 
   // 4. Mask Variables
   safeCode = safeCode.replace(/\b(head|tail|next|prev|data|value)\b/g, (match) => {
-    return mask(`<span class="text-blue-600">${match}</span>`);
+    return mask(`<span class="text-blue-400">${match}</span>`); // Adjusted color for dark mode
   });
 
   // 5. Mask Operators
@@ -96,5 +86,4 @@ function highlightSyntax(code) {
   });
 
   return safeCode;
->>>>>>> Stashed changes
 }
