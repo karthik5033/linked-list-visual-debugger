@@ -1,43 +1,47 @@
-/**
- * Code Panel Component
- * Displays C++ code with active line highlighting
- */
-
 'use client';
 
-export default function CodePanel({ code, activeLine, title = "C++ Code" }) {
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>
-      
-      <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-        <pre className="text-sm">
-          {code.map((line, index) => (
-            <div
-              key={index}
-              className={`py-1 px-3 rounded transition-colors ${
-                index === activeLine 
-                  ? 'bg-yellow-400 text-gray-900 font-bold' 
-                  : 'text-gray-300'
-              }`}
-            >
-              <span className="inline-block w-8 text-gray-500 select-none">
-                {index + 1}
-              </span>
-              <code>{line}</code>
+export default function CodePanel({ code = [], activeLine, title = 'C++ Code' }) {
+    return (
+        <div className="bg-[#1f2937] rounded-xl border border-[#374151] overflow-hidden flex flex-col h-full shadow-lg">
+            <div className="bg-[#111827] px-4 py-3 border-b border-[#374151] flex justify-between items-center">
+                <h3 className="font-mono text-sm font-bold text-gray-300">{title}</h3>
+                <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                </div>
             </div>
-          ))}
-        </pre>
-      </div>
 
-      {activeLine !== null && activeLine !== undefined && (
-        <div className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
-          <p className="text-sm text-gray-700">
-            <span className="font-semibold">Executing Line {activeLine + 1}:</span>
-            <code className="ml-2 text-blue-700">{code[activeLine]}</code>
-          </p>
+            <div className="flex-1 p-4 overflow-auto font-mono text-sm bg-[#0f1422]">
+                {code.length === 0 ? (
+                    <div className="text-gray-500 italic text-center mt-10">
+            // No operation running
+                    </div>
+                ) : (
+                    <table className="w-full border-collapse">
+                        <tbody>
+                            {code.map((line, index) => {
+                                const isHighlight = activeLine === index + 1; // activeLine is 1-based usually
+                                return (
+                                    <tr
+                                        key={index}
+                                        className={`${isHighlight ? 'bg-blue-500/20' : 'hover:bg-gray-800/30'} transition-colors duration-150`}
+                                    >
+                                        <td className="w-8 text-gray-600 text-right pr-4 select-none border-r border-[#374151]">
+                                            {index + 1}
+                                        </td>
+                                        <td className="pl-4 py-0.5">
+                                            <span className={`${isHighlight ? 'text-blue-300 font-bold' : 'text-gray-300'}`}>
+                                                {line}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                )}
+            </div>
         </div>
-      )}
-    </div>
-  );
+    );
 }

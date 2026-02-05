@@ -1,150 +1,86 @@
-/**
- * Control Panel Component
- * Allows users to select operations, input values, and control step execution
- */
-
 'use client';
 
-export default function ControlPanel({ 
-  listType, 
-  onExecute, 
-  onNextStep, 
-  onPrevStep, 
-  onReset,
-  hasNext,
-  hasPrev,
-  isRunning,
-  currentStepIndex,
-  totalSteps
-}) {
-  const operations = {
-    'singly': [
-      { id: 'insertHead', label: 'Insert at Head', needsValue: true },
-      { id: 'insertTail', label: 'Insert at Tail', needsValue: true },
-      { id: 'deleteHead', label: 'Delete Head', needsValue: false },
-      { id: 'deleteTail', label: 'Delete Tail', needsValue: false },
-      { id: 'traverse', label: 'Traverse', needsValue: false },
-      { id: 'reverse', label: 'Reverse', needsValue: false },
-    ],
-    'doubly': [
-      { id: 'insertHead', label: 'Insert at Head', needsValue: true },
-      { id: 'insertTail', label: 'Insert at Tail', needsValue: true },
-      { id: 'deleteHead', label: 'Delete Head', needsValue: false },
-    ],
-    'circular-singly': [
-      { id: 'insertHead', label: 'Insert at Head', needsValue: true },
-    ],
-    'circular-doubly': [
-      { id: 'insertHead', label: 'Insert at Head', needsValue: true },
-    ],
-  };
-
-  const [selectedOperation, setSelectedOperation] = useState('');
-  const [inputValue, setInputValue] = useState('');
-
-  const handleExecute = () => {
-    const operation = operations[listType].find(op => op.id === selectedOperation);
-    if (!operation) return;
-
-    const params = {};
-    if (operation.needsValue) {
-      const value = parseInt(inputValue);
-      if (isNaN(value)) {
-        alert('Please enter a valid number');
-        return;
-      }
-      params.value = value;
-    }
-
-    onExecute(selectedOperation, params);
-    setInputValue('');
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Control Panel</h2>
-      
-      {/* Operation Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Select Operation
-        </label>
-        <select
-          value={selectedOperation}
-          onChange={(e) => setSelectedOperation(e.target.value)}
-          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-          disabled={isRunning}
-        >
-          <option value="">Choose an operation...</option>
-          {operations[listType]?.map(op => (
-            <option key={op.id} value={op.id}>{op.label}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Value Input */}
-      {selectedOperation && operations[listType]?.find(op => op.id === selectedOperation)?.needsValue && (
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Enter Value
-          </label>
-          <input
-            type="number"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            placeholder="Enter a number"
-            disabled={isRunning}
-          />
-        </div>
-      )}
-
-      {/* Execute Button */}
-      <button
-        onClick={handleExecute}
-        disabled={!selectedOperation || isRunning}
-        className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors mb-6"
-      >
-        Execute Operation
-      </button>
-
-      {/* Step Controls */}
-      {isRunning && (
-        <div className="border-t-2 border-gray-200 pt-6">
-          <div className="mb-4 text-center">
-            <span className="text-sm font-semibold text-gray-700">
-              Step {currentStepIndex + 1} of {totalSteps}
-            </span>
-          </div>
-          
-          <div className="flex gap-3">
-            <button
-              onClick={onPrevStep}
-              disabled={!hasPrev}
-              className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-            >
-              ← Previous
-            </button>
-            
-            <button
-              onClick={onNextStep}
-              disabled={!hasNext}
-              className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-            >
-              Next →
-            </button>
-          </div>
-
-          <button
-            onClick={onReset}
-            className="w-full mt-3 bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-          >
-            Reset
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 import { useState } from 'react';
+
+export default function ControlPanel({
+    onInsertHead,
+    onInsertTail,
+    onDeleteValue,
+    onSearch,
+    onReset,
+    isRunning
+}) {
+    const [inputValue, setInputValue] = useState('');
+
+    const handleAction = (action) => {
+        if (!inputValue.trim()) return;
+        action(inputValue);
+        setInputValue('');
+    };
+
+    return (
+        <div className="bg-[#1f2937] p-4 rounded-xl border border-[#374151] shadow-lg">
+            <div className="flex flex-col gap-4">
+                {/* Input Field */}
+                <div className="relative">
+                    <input
+                        type="number"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder="Enter value..."
+                        disabled={isRunning}
+                        className="w-full bg-[#111827] border border-[#374151] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleAction(onInsertTail);
+                        }}
+                    />
+                </div>
+
+                {/* Operation Buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                    <button
+                        onClick={() => handleAction(onInsertHead)}
+                        disabled={isRunning || !inputValue}
+                        className="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        <span>➕ Head</span>
+                    </button>
+
+                    <button
+                        onClick={() => handleAction(onInsertTail)}
+                        disabled={isRunning || !inputValue}
+                        className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                    >
+                        <span>➕ Tail</span>
+                    </button>
+
+                    <button
+                        onClick={() => handleAction(onDeleteValue)}
+                        disabled={isRunning || !inputValue}
+                        className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        <span>🗑️ Delete</span>
+                    </button>
+
+                    <button
+                        onClick={() => handleAction(onSearch)}
+                        disabled={isRunning || !inputValue}
+                        className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        <span>🔍 Search</span>
+                    </button>
+                </div>
+
+                <div className="border-t border-[#374151] my-1"></div>
+
+                <button
+                    onClick={onReset}
+                    disabled={isRunning}
+                    className="w-full bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50"
+                >
+                    Reset Memory
+                </button>
+            </div>
+        </div>
+    );
+}
