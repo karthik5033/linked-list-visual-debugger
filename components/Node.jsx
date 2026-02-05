@@ -1,43 +1,55 @@
-/**
- * Node Component
- * Renders a single node in the linked list visualization
- */
-
 'use client';
+
+import { motion } from 'framer-motion';
 
 export default function Node({ value, nodeId, isHead, isTail, isHighlighted }) {
   return (
-    <div className="flex flex-col items-center">
-      {/* Labels */}
-      <div className="flex gap-2 mb-1">
+    <motion.div 
+      layout
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.8, opacity: 0 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      className="flex flex-col items-center mx-2 group"
+    >
+      {/* Labels - Absolute positioned to avoid layout shift */}
+      <div className="h-6 mb-1 flex gap-1 items-end">
         {isHead && (
-          <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
+          <motion.span 
+            initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+            className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 tracking-wider"
+          >
             HEAD
-          </span>
+          </motion.span>
         )}
         {isTail && (
-          <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
+          <motion.span 
+            initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+            className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 tracking-wider"
+          >
             TAIL
-          </span>
+          </motion.span>
         )}
       </div>
 
       {/* Node Box */}
       <div 
         className={`
-          relative w-20 h-20 rounded-lg border-4 flex items-center justify-center
-          transition-all duration-300 shadow-lg
+          relative w-16 h-16 rounded-xl border-2 flex flex-col items-center justify-center
+          transition-all duration-300 shadow-sm
           ${isHighlighted 
-            ? 'border-yellow-400 bg-yellow-50 scale-110' 
-            : 'border-gray-700 bg-white'
+            ? 'border-black bg-black text-white shadow-lg shadow-gray-400/50 scale-105 z-10' 
+            : 'border-gray-200 bg-white text-gray-900 group-hover:border-gray-300 group-hover:shadow'
           }
         `}
       >
-        <span className="text-2xl font-bold text-gray-900">{value}</span>
+        <span className="text-xl font-bold font-mono tracking-tight">{value}</span>
+        
+        {/* Memory Address Simulation */}
+        <span className={`text-[8px] font-mono mt-1 opacity-60 ${isHighlighted ? 'text-gray-300' : 'text-gray-400'}`}>
+          {nodeId.replace('node_', '0x')}
+        </span>
       </div>
-
-      {/* Node ID */}
-      <span className="text-xs text-gray-500 mt-1 font-mono">{nodeId}</span>
-    </div>
+    </motion.div>
   );
 }
