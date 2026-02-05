@@ -71,7 +71,7 @@ const InstructionCursor = ({ x, y }) => (
   </motion.div>
 );
 
-export default function MemoryBackground() {
+export default function MemoryBackground({ isDark = true }) {
   const [blocks, setBlocks] = useState([]);
   const [trace, setTrace] = useState(null);
   const [cursor, setCursor] = useState({ x: -100, y: -100 });
@@ -118,18 +118,20 @@ export default function MemoryBackground() {
     return () => clearInterval(interval);
   }, []);
 
+  const gridColor = isDark ? '#ffffff' : '#000000';
+  const bgColor = isDark ? 'bg-[#050505]' : 'bg-gray-50';
+
   return (
-    <div ref={containerRef} className="fixed inset-0 -z-10 bg-[#050505] overflow-hidden">
+    <div ref={containerRef} className={`fixed inset-0 z-0 ${bgColor} overflow-hidden transition-colors duration-500`}>
       {/* 1. The Grid (The foundation) */}
       <div 
-        className="absolute inset-0 opacity-[0.08]"
+        className="absolute inset-0 opacity-20"
         style={{
           backgroundImage: `
-            linear-gradient(to right, #ffffff 1px, transparent 1px),
-            linear-gradient(to bottom, #ffffff 1px, transparent 1px)
+            linear-gradient(to right, ${gridColor} 1px, transparent 1px),
+            linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)
           `,
-          backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
-          maskImage: 'radial-gradient(circle at center, black 60%, transparent 100%)' // Fade edges
+          backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`
         }}
       />
 
@@ -150,7 +152,12 @@ export default function MemoryBackground() {
       <InstructionCursor x={cursor.x} y={cursor.y} />
 
       {/* 6. Vignette for focus */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent to-[#050505] opacity-80 pointer-events-none" />
+      <div 
+        className="absolute inset-0 opacity-40 pointer-events-none transition-colors duration-500" 
+        style={{
+            background: `radial-gradient(circle at center, transparent 0%, ${isDark ? '#050505' : '#f9fafb'} 100%)`
+        }}
+      />
     </div>
   );
 }
