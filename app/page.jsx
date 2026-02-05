@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
 import MemoryBackground from './components/MemoryBackground';
+import { useTheme } from './context/ThemeContext';
+
 
 // --- Icons ---
 const Icons = {
@@ -16,12 +17,13 @@ const Icons = {
   Database: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"/></svg>
 };
 
-const StatusBar = () => (
+const StatusBar = ({ isDark }) => (
   <motion.div 
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ delay: 1 }}
-    className="fixed bottom-0 left-0 right-0 h-8 bg-[#0a0a0a] border-t border-white/5 flex items-center px-4 justify-between text-xs font-mono text-gray-600 z-50 select-none backdrop-blur-sm"
+    className={`fixed bottom-0 left-0 right-0 h-8 border-t flex items-center px-4 justify-between text-xs font-mono z-50 select-none backdrop-blur-sm transition-colors duration-500
+      ${isDark ? 'bg-[#0a0a0a] border-white/5 text-gray-600' : 'bg-white/80 border-gray-200 text-gray-500'}`}
   >
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
@@ -32,13 +34,13 @@ const StatusBar = () => (
       <span className="hidden md:inline">0 errors</span>
     </div>
     <div className="flex items-center gap-4">
-      <span className="text-gray-500">Memory.cpp</span>
+      <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>Memory.cpp</span>
       <span className="text-blue-500">UTF-8</span>
     </div>
   </motion.div>
 );
 
-const BentoCard = ({ item, index }) => (
+const BentoCard = ({ item, index, isDark }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -46,29 +48,35 @@ const BentoCard = ({ item, index }) => (
     className="relative group h-full"
   >
     <Link href={item.href} className="block h-full">
-      <div className="h-full bg-[#080808] border border-white/5 rounded-lg p-6 hover:border-blue-500/30 transition-all duration-300 hover:bg-[#0c0c0c] hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.1)] flex flex-col justify-between">
+      <div className={`h-full border rounded-lg p-6 transition-all duration-300 flex flex-col justify-between
+        ${isDark 
+          ? 'bg-[#080808] border-white/5 hover:border-blue-500/30 hover:bg-[#0c0c0c] hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.1)]' 
+          : 'bg-white border-gray-200 hover:border-blue-500/50 hover:shadow-xl shadow-sm'
+        }`}>
         
         <div>
            <div className="flex items-center justify-between mb-4">
              <div className="w-12 h-12 rounded bg-blue-500/10 flex items-center justify-center text-blue-400">
                {item.icon}
              </div>
-             <span className="text-xs text-gray-600 font-mono uppercase tracking-wider border border-white/5 px-2 py-1 rounded">
+             <span className={`text-xs font-mono uppercase tracking-wider border px-2 py-1 rounded
+               ${isDark ? 'text-gray-600 border-white/5' : 'text-gray-500 border-gray-200 bg-gray-50'}`}>
                {item.meta}
              </span>
            </div>
            
-           <h3 className="text-2xl font-bold text-gray-200 mb-2 group-hover:text-blue-400 transition-colors">
+           <h3 className={`text-2xl font-bold mb-2 transition-colors ${isDark ? 'text-gray-200 group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-600'}`}>
              {item.title}
            </h3>
            
-           <p className="text-base text-gray-500 leading-relaxed mb-4">
+           <p className={`text-base leading-relaxed mb-4 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
              {item.description}
            </p>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-white/5">
-           <div className="bg-black/50 rounded p-3 font-mono text-xs text-gray-400 truncate group-hover:text-gray-300 transition-colors">
+        <div className={`mt-6 pt-4 border-t ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
+           <div className={`rounded p-3 font-mono text-xs truncate transition-colors
+             ${isDark ? 'bg-black/50 text-gray-400 group-hover:text-gray-300' : 'bg-gray-50 text-gray-500 group-hover:text-gray-700'}`}>
              <span className="text-purple-400">struct</span> Point {'{'} {item.code} {'}'}
            </div>
         </div>
@@ -77,24 +85,28 @@ const BentoCard = ({ item, index }) => (
   </motion.div>
 );
 
-const ComplexityRow = ({ name, access, search, insert, remove }) => (
-  <div className="grid grid-cols-5 py-4 border-b border-white/5 text-sm hover:bg-white/5 transition-colors px-4">
-    <div className="font-medium text-gray-200">{name}</div>
-    <div className={`font-mono ${access === 'O(1)' ? 'text-green-400' : 'text-yellow-500'}`}>{access}</div>
-    <div className={`font-mono ${search === 'O(1)' ? 'text-green-400' : 'text-yellow-500'}`}>{search}</div>
-    <div className={`font-mono ${insert === 'O(1)' ? 'text-green-400' : 'text-yellow-500'}`}>{insert}</div>
-    <div className={`font-mono ${remove === 'O(1)' ? 'text-green-400' : 'text-yellow-500'}`}>{remove}</div>
+const ComplexityRow = ({ name, access, search, insert, remove, isDark }) => (
+  <div className={`grid grid-cols-5 py-4 border-b text-sm transition-colors px-4
+    ${isDark ? 'border-white/5 hover:bg-white/5' : 'border-gray-100 hover:bg-gray-50'}`}>
+    <div className={`font-medium ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{name}</div>
+    <div className={`font-mono ${access === 'O(1)' ? 'text-green-400' : isDark ? 'text-yellow-500' : 'text-yellow-600'}`}>{access}</div>
+    <div className={`font-mono ${search === 'O(1)' ? 'text-green-400' : isDark ? 'text-yellow-500' : 'text-yellow-600'}`}>{search}</div>
+    <div className={`font-mono ${insert === 'O(1)' ? 'text-green-400' : isDark ? 'text-yellow-500' : 'text-yellow-600'}`}>{insert}</div>
+    <div className={`font-mono ${remove === 'O(1)' ? 'text-green-400' : isDark ? 'text-yellow-500' : 'text-yellow-600'}`}>{remove}</div>
   </div>
 );
 
-const StatBox = ({ value, label }) => (
-  <div className="p-6 border border-white/5 rounded-lg bg-[#0a0a0a] text-center">
-    <div className="text-3xl font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">{value}</div>
+const StatBox = ({ value, label, isDark }) => (
+  <div className={`p-6 border rounded-lg text-center transition-colors duration-500
+    ${isDark ? 'border-white/5 bg-[#0a0a0a]' : 'border-gray-200 bg-white shadow-sm'}`}>
+    <div className={`text-3xl font-bold mb-1 transition-colors ${isDark ? 'text-white group-hover:text-blue-400' : 'text-gray-900'}`}>{value}</div>
     <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">{label}</div>
   </div>
 );
 
 export default function Home() {
+  const { isDark, toggleTheme } = useTheme();
+
   const linkedLists = [
     {
       title: 'Singly List',
@@ -131,11 +143,40 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen font-sans text-gray-200">
-      <MemoryBackground />
-      <StatusBar />
+    <div className={`min-h-screen font-sans transition-colors duration-500 ${isDark ? 'text-gray-200 bg-[#050505]' : 'text-gray-800 bg-gray-50'}`}>
+      <MemoryBackground isDark={isDark} />
+      
+      {/* Header with Theme Switcher */}
+      <header className={`fixed top-0 left-0 right-0 z-40 px-6 py-5 flex items-center justify-between backdrop-blur-md border-b transition-colors duration-500
+        ${isDark ? 'bg-black/20 border-white/5' : 'bg-white/60 border-gray-200'}`}>
+        <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">D</div>
+            <span className={`font-bold tracking-tight text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>DSA<span className="text-gray-500 font-normal">Viz</span></span>
+        </div>
+        <button 
+            onClick={toggleTheme}
+            className={`px-4 py-2 rounded-full text-sm font-medium border transition-all flex items-center gap-2
+            ${isDark 
+                ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' 
+                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-100 shadow-sm'}`}
+        >
+            {isDark ? (
+                <>
+                    <svg className="w-4 h-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <span>Light Mode</span>
+                </>
+            ) : (
+                <>
+                    <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    <span>Dark Mode</span>
+                </>
+            )}
+        </button>
+      </header>
 
-      <main className="max-w-6xl mx-auto px-6 pt-24 pb-32">
+      <StatusBar isDark={isDark} />
+
+      <main className="relative z-10 max-w-6xl mx-auto px-6 pt-32 pb-32">
         
         {/* --- Hero Section --- */}
         <section className="mb-24 flex flex-col items-center text-center">
@@ -149,67 +190,71 @@ export default function Home() {
              </span>
           </motion.div>
 
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 bg-gradient-to-b from-white via-white to-gray-600 bg-clip-text text-transparent max-w-5xl">
+          <h1 className={`text-6xl md:text-8xl font-bold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-b max-w-5xl
+            ${isDark ? 'from-white via-white to-gray-600' : 'from-gray-900 via-gray-800 to-gray-500'}`}>
             Visualize Memory. 
             <br />
-            <span className="text-gray-600">Master the Heap.</span>
+            <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>Master the Heap.</span>
           </h1>
 
-          <p className="max-w-2xl text-gray-400 text-xl mb-12 leading-relaxed">
-            A professional lightweight debugger for visualizing <span className="text-blue-400">Linked Lists</span>. 
+          <p className={`max-w-2xl text-xl mb-12 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            A professional lightweight debugger for visualizing <span className="text-blue-500 font-semibold">Linked Lists</span>. 
             Trace allocations, watch pointers rewire, and understand true memory management.
           </p>
 
           <div className="flex gap-4">
-             <button className="px-8 py-3 bg-white text-black font-bold rounded hover:bg-gray-200 transition-colors text-base">
+             <button className={`px-8 py-3 font-bold rounded transition-colors text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200
+               ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-gray-900 text-white hover:bg-gray-800'}`}>
                Get Started
              </button>
-             <button className="px-8 py-3 bg-white/5 border border-white/10 text-white font-medium rounded hover:bg-white/10 transition-colors text-base font-mono">
+             <button className={`px-8 py-3 border font-medium rounded transition-colors text-base font-mono
+               ${isDark ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm'}`}>
                npm install dsa-viz
              </button>
           </div>
         </section>
 
 
-        {/* --- Stats Grid (New Content) --- */}
+        {/* --- Stats Grid --- */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-32">
-           <StatBox value="60 FPS" label="Rendering" />
-           <StatBox value="< 1ms" label="Latency" />
-           <StatBox value="Zero" label="Dependencies" />
-           <StatBox value="100%" label="Open Source" />
+           <StatBox value="60 FPS" label="Rendering" isDark={isDark} />
+           <StatBox value="< 1ms" label="Latency" isDark={isDark} />
+           <StatBox value="Zero" label="Dependencies" isDark={isDark} />
+           <StatBox value="100%" label="Open Source" isDark={isDark} />
         </section>
 
 
         {/* --- Bento Grid --- */}
         <section className="mb-32">
            <div className="flex items-center justify-between mb-8">
-             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+             <h2 className={`text-2xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                <span className="w-1.5 h-8 bg-blue-500 rounded-sm"></span>
                Data Structures
              </h2>
-             <span className="text-sm font-mono text-gray-600">INDEX: 0x01 - 0x05</span>
+             <span className="text-sm font-mono text-gray-500">INDEX: 0x01 - 0x05</span>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {linkedLists.map((item, i) => (
-                <BentoCard key={i} item={item} index={i} />
+                <BentoCard key={i} item={item} index={i} isDark={isDark} />
               ))}
            </div>
         </section>
 
 
-        {/* --- Specs Table (New Content) --- */}
+        {/* --- Specs Table --- */}
         <section className="mb-32">
            <div className="flex items-center justify-between mb-8">
-             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+             <h2 className={`text-2xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                <span className="w-1.5 h-8 bg-blue-500 rounded-sm"></span>
                Tech Specs
              </h2>
-             <span className="text-sm font-mono text-gray-600">perf_analysis.log</span>
+             <span className="text-sm font-mono text-gray-500">perf_analysis.log</span>
            </div>
 
-           <div className="border border-white/5 rounded-lg bg-[#080808] overflow-hidden">
-             <div className="grid grid-cols-5 py-4 border-b border-white/10 bg-white/5 text-xs font-mono uppercase text-gray-400 px-4">
+           <div className={`border rounded-lg overflow-hidden transition-colors ${isDark ? 'border-white/5 bg-[#080808]' : 'border-gray-200 bg-white shadow-sm'}`}>
+             <div className={`grid grid-cols-5 py-4 border-b text-xs font-mono uppercase px-4
+               ${isDark ? 'border-white/10 bg-white/5 text-gray-400' : 'border-gray-100 bg-gray-50 text-gray-500'}`}>
                <div>Structure</div>
                <div>Access</div>
                <div>Search</div>
@@ -217,36 +262,36 @@ export default function Home() {
                <div>Delete</div>
              </div>
              
-             <ComplexityRow name="Singly Linked List" access="O(n)" search="O(n)" insert="O(1)" remove="O(1)" />
-             <ComplexityRow name="Doubly Linked List" access="O(n)" search="O(n)" insert="O(1)" remove="O(1)" />
-             <ComplexityRow name="Circular List" access="O(n)" search="O(n)" insert="O(1)" remove="O(1)" />
-             <ComplexityRow name="Array (Ref)" access="O(1)" search="O(n)" insert="O(n)" remove="O(n)" />
+             <ComplexityRow name="Singly Linked List" access="O(n)" search="O(n)" insert="O(1)" remove="O(1)" isDark={isDark} />
+             <ComplexityRow name="Doubly Linked List" access="O(n)" search="O(n)" insert="O(1)" remove="O(1)" isDark={isDark} />
+             <ComplexityRow name="Circular List" access="O(n)" search="O(n)" insert="O(1)" remove="O(1)" isDark={isDark} />
+             <ComplexityRow name="Array (Ref)" access="O(1)" search="O(n)" insert="O(n)" remove="O(n)" isDark={isDark} />
            </div>
         </section>
 
 
         {/* --- Features Grid --- */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32 border-t border-white/5 pt-16">
+        <section className={`grid grid-cols-1 md:grid-cols-3 gap-8 mb-32 border-t pt-16 transition-colors ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
            <div className="p-6">
              <div className="text-blue-500 mb-6"><Icons.Cpu /></div>
-             <h3 className="text-white text-xl font-bold mb-3">Real-time Heap View</h3>
-             <p className="text-base text-gray-500 leading-relaxed">
+             <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>Real-time Heap View</h3>
+             <p className={`text-base leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                Watch as `malloc()` reserves specific blocks in our simulated heap memory. See the addresses change live.
              </p>
            </div>
            
            <div className="p-6">
              <div className="text-blue-500 mb-6"><Icons.Zap /></div>
-             <h3 className="text-white text-xl font-bold mb-3">Pointer Arithmetic</h3>
-             <p className="text-base text-gray-500 leading-relaxed">
+             <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>Pointer Arithmetic</h3>
+             <p className={`text-base leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                Understand `next` and `prev` pointers not as arrows, but as memory addresses storing locations.
              </p>
            </div>
 
            <div className="p-6">
              <div className="text-blue-500 mb-6"><Icons.Database /></div>
-             <h3 className="text-white text-xl font-bold mb-3">State Management</h3>
-             <p className="text-base text-gray-500 leading-relaxed">
+             <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>State Management</h3>
+             <p className={`text-base leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                Global state ensures your data structures persist across route changes, just like a real database.
              </p>
            </div>
@@ -254,8 +299,8 @@ export default function Home() {
 
 
         {/* --- Terminal CTA --- */}
-        <section className="relative rounded-2xl border border-white/10 bg-[#0c0c0c] overflow-hidden">
-           <div className="absolute top-0 left-0 right-0 h-10 bg-white/5 border-b border-white/5 flex items-center px-4 gap-2">
+        <section className={`relative rounded-2xl border overflow-hidden ${isDark ? 'border-white/10 bg-[#0c0c0c]' : 'border-gray-300 bg-[#1e1e1e] shadow-xl'}`}>
+           <div className={`absolute top-0 left-0 right-0 h-10 border-b flex items-center px-4 gap-2 bg-white/5 border-white/5`}>
              <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
              <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
              <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
@@ -264,8 +309,8 @@ export default function Home() {
 
            <div className="p-8 pt-16 font-mono text-sm md:text-base text-gray-400">
              <p>$ <span className="text-blue-400">init</span> engine --verbose</p>
-             <p className="text-gray-600 mt-2">Loading core modules...</p>
-             <p className="text-gray-600">Initializing heap memory (1024MB)...</p>
+             <p className="text-gray-500 mt-2">Loading core modules...</p>
+             <p className="text-gray-500">Initializing heap memory (1024MB)...</p>
              <p className="text-green-500 mt-2">Success! Visualizer ready.</p>
              <p className="mt-4 animate-pulse">_</p>
            </div>
