@@ -42,11 +42,11 @@ export default function MemoryBoard({
             <div className="flex-1 flex items-center content-center overflow-x-auto overflow-y-visible pb-4 custom-scrollbar relative">
                 <div className="flex items-center px-8 min-w-max h-64 relative">
                     {head === null ? (
-                        <div className="text-gray-500 italic flex items-center gap-2">
-                            <div className="w-16 h-16 border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center">
-                                NULL
+                        <div className="text-gray-500 flex flex-col items-center gap-3 animate-pulse opacity-50 mx-auto">
+                            <div className="w-20 h-20 border-2 border-dashed border-gray-700 rounded-2xl flex items-center justify-center bg-gray-900/50">
+                                <span className="text-2xl">∅</span>
                             </div>
-                            <span className="text-sm">List is empty</span>
+                            <span className="text-xs font-mono tracking-widest uppercase">Memory Empty</span>
                         </div>
                     ) : (
                         <div className="flex items-center relative">
@@ -68,9 +68,9 @@ export default function MemoryBoard({
 
                             {/* Final Element: NULL or Circular Link */}
                             {!isCircular && (
-                                <div className="flex items-center">
-                                    <div className="w-12 h-12 bg-gray-800/50 border-2 border-dashed border-gray-600 rounded flex items-center justify-center ml-1">
-                                        <span className="text-xs font-mono text-gray-500">NULL</span>
+                                <div className="flex items-center group">
+                                    <div className="w-12 h-12 bg-[#050505] border border-dashed border-gray-800 rounded-lg flex items-center justify-center ml-1 group-hover:border-gray-600 transition-colors">
+                                        <span className="text-[10px] font-mono text-gray-600 group-hover:text-gray-400">NULL</span>
                                     </div>
                                 </div>
                             )}
