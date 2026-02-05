@@ -1,12 +1,8 @@
-/**
- * Singly Linked List Page
- * Main debugger interface for singly linked list operations
- */
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import { ArrowLeft, GitCommit } from 'lucide-react';
 import ControlPanel from '@/components/ControlPanel';
 import MemoryBoard from '@/components/MemoryBoard';
 import CodePanel from '@/components/CodePanel';
@@ -35,16 +31,11 @@ export default function SinglyLinkedListPage() {
   } = useStepRunner(steps);
 
   const handleExecute = (operation, params) => {
-    // Get the C++ code for this operation
     const code = getSinglyLLCode(operation);
     setCurrentCode(code);
     setCurrentOperation(operation);
-
-    // Execute the operation and get steps
     const generatedSteps = engine.executeOperation('singly', operation, params);
     setSteps(generatedSteps);
-
-    // Start stepping through
     setTimeout(() => start(), 100);
   };
 
@@ -57,102 +48,88 @@ export default function SinglyLinkedListPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <Link href="/" className="text-blue-600 hover:text-blue-700 font-semibold">
-              ← Back to Home
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Pro Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-[1920px] mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-gray-500 hover:text-black transition-colors">
+              <ArrowLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mt-2">
-              Singly Linked List Debugger
+            <div className="h-6 w-px bg-gray-200" />
+            <h1 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <GitCommit className="w-5 h-5" />
+              Singly Linked List
             </h1>
           </div>
-          <div className="text-right">
-            <div className="text-sm text-gray-600">Data Structure</div>
-            <div className="text-lg font-bold text-blue-600">Singly Linked List</div>
+          <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
+             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+             DEBUGGER ONLINE
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Control Panel */}
-          <div className="lg:col-span-1">
-            <ControlPanel
-              listType="singly"
-              onExecute={handleExecute}
-              onNextStep={nextStep}
-              onPrevStep={prevStep}
-              onReset={handleReset}
-              hasNext={hasNext}
-              hasPrev={hasPrev}
-              isRunning={isRunning}
-              currentStepIndex={currentStepIndex}
-              totalSteps={totalSteps}
-            />
-
-            {/* Variable Watch */}
-            <div className="mt-6">
-              <VariableWatch 
-                variables={currentStep?.variables || {}} 
+      {/* Main Workspace */}
+      <main className="flex-1 p-6 overflow-hidden max-w-[1920px] mx-auto w-full">
+        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-8rem)]">
+          
+          {/* Left Panel: Controls & Variables */}
+          <div className="col-span-3 flex flex-col gap-6 h-full overflow-hidden">
+             <div className="flex-none">
+              <ControlPanel
+                listType="singly"
+                onExecute={handleExecute}
+                onNextStep={nextStep}
+                onPrevStep={prevStep}
+                onReset={handleReset}
+                hasNext={hasNext}
+                hasPrev={hasPrev}
+                isRunning={isRunning}
+                currentStepIndex={currentStepIndex}
+                totalSteps={totalSteps}
               />
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <VariableWatch variables={currentStep?.variables || {}} />
             </div>
           </div>
 
-          {/* Right Column: Visualization and Code */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Memory Board */}
-            <MemoryBoard
-              memoryState={currentStep?.memoryState || engine.getMemoryState()}
-              highlightedNodes={[]}
-            />
-
-            {/* Code Panel */}
-            {currentCode.length > 0 && (
-              <CodePanel
-                code={currentCode}
-                activeLine={currentStep?.activeLine}
-                title={`C++ Code - ${currentOperation}`}
+          {/* Center Panel: Visualization */}
+          <div className="col-span-6 flex flex-col h-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+            <div className="border-b border-gray-100 p-4 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Memory Graph</h2>
+              <div className="flex gap-2">
+                 <div className="flex items-center gap-1.5 text-[10px] text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
+                  <div className="w-2 h-2 bg-black rounded-sm" /> NODE
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-sm" /> ACTIVE
+                </div>
+              </div>
+            </div>
+             <div className="flex-1 overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] p-8">
+              <MemoryBoard
+                memoryState={currentStep?.memoryState || engine.getMemoryState()}
+                highlightedNodes={[]}
               />
-            )}
-
-            {/* Step Description */}
-            {currentStep?.description && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  Current Step Description
-                </h3>
-                <p className="text-gray-700">{currentStep.description}</p>
+            </div>
+             {currentStep?.description && (
+              <div className="p-4 border-t border-gray-100 bg-white">
+                <p className="text-sm text-gray-700 font-mono">
+                  <span className="text-black font-bold mr-2">{'>'}</span>
+                  {currentStep.description}
+                </p>
               </div>
             )}
           </div>
-        </div>
 
-        {/* Info Section */}
-        <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
-            📚 About Singly Linked List
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
-            <div>
-              <h4 className="font-bold mb-2">Structure</h4>
-              <p className="text-sm">
-                Each node contains data and a single pointer (next) to the next node.
-                The last node points to NULL.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold mb-2">Time Complexity</h4>
-              <ul className="text-sm space-y-1">
-                <li>• Insert at head: O(1)</li>
-                <li>• Insert at tail: O(1) with tail pointer</li>
-                <li>• Delete: O(n)</li>
-                <li>• Search: O(n)</li>
-              </ul>
-            </div>
+          {/* Right Panel: Code */}
+           <div className="col-span-3 h-full overflow-hidden">
+            <CodePanel
+               code={currentCode}
+               activeLine={currentStep?.activeLine}
+               title="Algorithm Source"
+            />
           </div>
         </div>
       </main>
