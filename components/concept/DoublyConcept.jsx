@@ -1,26 +1,35 @@
 'use client';
 
+import { useTheme } from '@/app/context/ThemeContext';
+
 export default function DoublyConcept({ onStartLearning }) {
+    const { isDark } = useTheme();
+
     return (
         <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-fade-in-up">
-            <div className="bg-purple-900/20 p-8 rounded-3xl border border-purple-500/30 shadow-2xl max-w-4xl">
-                <div className="text-6xl mb-6">⇄</div>
-                <h2 className="text-4xl font-bold text-white mb-4">Doubly Linked List</h2>
-                <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
+            <div className={`p-8 rounded-3xl border shadow-2xl max-w-4xl transition-colors duration-500
+                ${isDark
+                    ? 'bg-purple-900/20 border-purple-500/30'
+                    : 'bg-white border-purple-200 shadow-purple-100'}`}>
+                <div className="text-6xl mb-6 text-purple-500">⇄</div>
+                <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Doubly Linked List</h2>
+                <p className={`text-xl mb-8 leading-relaxed max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                     A linked list where each node points to both its
-                    <span className="text-purple-400 font-bold mx-1">Next</span>
+                    <span className="text-purple-500 font-bold mx-1">Next</span>
                     node and its
-                    <span className="text-pink-400 font-bold mx-1">Previous</span>
+                    <span className="text-pink-500 font-bold mx-1">Previous</span>
                     node. This allows for bidirectional traversal but requires more memory for the extra pointer.
                 </p>
 
                 {/* Visual Diagram */}
-                <div className="bg-gray-900/50 p-8 rounded-xl border border-gray-700 mb-8 overflow-x-auto">
+                <div className={`p-8 rounded-xl border mb-8 overflow-x-auto transition-colors
+                    ${isDark ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
                     <div className="flex items-center justify-center gap-4 min-w-max font-mono text-sm">
 
                         {/* Null Prev */}
                         <div className="flex flex-col items-center opacity-50">
-                            <div className="w-12 h-12 border-2 border-dashed border-gray-600 rounded flex items-center justify-center">
+                            <div className={`w-12 h-12 border-2 border-dashed rounded flex items-center justify-center
+                                ${isDark ? 'border-gray-600' : 'border-gray-300 text-gray-400'}`}>
                                 NULL
                             </div>
                         </div>
@@ -28,10 +37,19 @@ export default function DoublyConcept({ onStartLearning }) {
 
                         {/* Node 1 */}
                         <div className="flex items-center">
-                            <div className="w-24 h-16 bg-purple-600 rounded-lg flex border-2 border-purple-400 shadow-lg shadow-purple-500/20">
-                                <div className="w-1/3 border-r border-purple-400 bg-purple-800/50 flex items-center justify-center text-[10px] text-pink-300">prev</div>
-                                <div className="flex-1 flex items-center justify-center font-bold text-white">10</div>
-                                <div className="w-1/3 border-l border-purple-400 bg-purple-800/50 flex items-center justify-center text-[10px] text-blue-300">next</div>
+                            <div className={`w-24 h-16 rounded-lg flex border-2 shadow-lg z-10 relative
+                                ${isDark
+                                    ? 'bg-purple-600 border-purple-400 shadow-purple-500/20'
+                                    : 'bg-white border-purple-500 shadow-sm text-gray-900'}`}>
+                                <div className={`w-1/3 border-r flex items-center justify-center text-[10px]
+                                    ${isDark
+                                        ? 'border-purple-400 bg-purple-800/50 text-pink-300'
+                                        : 'border-purple-200 bg-purple-50 text-pink-600'}`}>prev</div>
+                                <div className={`flex-1 flex items-center justify-center font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>10</div>
+                                <div className={`w-1/3 border-l flex items-center justify-center text-[10px]
+                                    ${isDark
+                                        ? 'border-purple-400 bg-purple-800/50 text-blue-300'
+                                        : 'border-purple-200 bg-purple-50 text-blue-600'}`}>next</div>
                             </div>
                         </div>
 
@@ -43,10 +61,19 @@ export default function DoublyConcept({ onStartLearning }) {
 
                         {/* Node 2 */}
                         <div className="flex items-center">
-                            <div className="w-24 h-16 bg-purple-600 rounded-lg flex border-2 border-purple-400 shadow-lg shadow-purple-500/20">
-                                <div className="w-1/3 border-r border-purple-400 bg-purple-800/50 flex items-center justify-center text-[10px] text-pink-300">prev</div>
-                                <div className="flex-1 flex items-center justify-center font-bold text-white">20</div>
-                                <div className="w-1/3 border-l border-purple-400 bg-purple-800/50 flex items-center justify-center text-[10px] text-blue-300">next</div>
+                            <div className={`w-24 h-16 rounded-lg flex border-2 shadow-lg z-10 relative
+                                ${isDark
+                                    ? 'bg-purple-600 border-purple-400 shadow-purple-500/20'
+                                    : 'bg-white border-purple-500 shadow-sm text-gray-900'}`}>
+                                <div className={`w-1/3 border-r flex items-center justify-center text-[10px]
+                                    ${isDark
+                                        ? 'border-purple-400 bg-purple-800/50 text-pink-300'
+                                        : 'border-purple-200 bg-purple-50 text-pink-600'}`}>prev</div>
+                                <div className={`flex-1 flex items-center justify-center font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>20</div>
+                                <div className={`w-1/3 border-l flex items-center justify-center text-[10px]
+                                    ${isDark
+                                        ? 'border-purple-400 bg-purple-800/50 text-blue-300'
+                                        : 'border-purple-200 bg-purple-50 text-blue-600'}`}>next</div>
                             </div>
                         </div>
 
@@ -58,17 +85,27 @@ export default function DoublyConcept({ onStartLearning }) {
 
                         {/* Node 3 */}
                         <div className="flex items-center">
-                            <div className="w-24 h-16 bg-purple-600 rounded-lg flex border-2 border-purple-400 shadow-lg shadow-purple-500/20">
-                                <div className="w-1/3 border-r border-purple-400 bg-purple-800/50 flex items-center justify-center text-[10px] text-pink-300">prev</div>
-                                <div className="flex-1 flex items-center justify-center font-bold text-white">30</div>
-                                <div className="w-1/3 border-l border-purple-400 bg-purple-800/50 flex items-center justify-center text-[10px] text-blue-300">next</div>
+                            <div className={`w-24 h-16 rounded-lg flex border-2 shadow-lg z-10 relative
+                                ${isDark
+                                    ? 'bg-purple-600 border-purple-400 shadow-purple-500/20'
+                                    : 'bg-white border-purple-500 shadow-sm text-gray-900'}`}>
+                                <div className={`w-1/3 border-r flex items-center justify-center text-[10px]
+                                    ${isDark
+                                        ? 'border-purple-400 bg-purple-800/50 text-pink-300'
+                                        : 'border-purple-200 bg-purple-50 text-pink-600'}`}>prev</div>
+                                <div className={`flex-1 flex items-center justify-center font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>30</div>
+                                <div className={`w-1/3 border-l flex items-center justify-center text-[10px]
+                                    ${isDark
+                                        ? 'border-purple-400 bg-purple-800/50 text-blue-300'
+                                        : 'border-purple-200 bg-purple-50 text-blue-600'}`}>next</div>
                             </div>
                         </div>
 
                         <div className="text-gray-500">→</div>
                         {/* Null Next */}
                         <div className="flex flex-col items-center opacity-50">
-                            <div className="w-12 h-12 border-2 border-dashed border-gray-600 rounded flex items-center justify-center">
+                            <div className={`w-12 h-12 border-2 border-dashed rounded flex items-center justify-center
+                                ${isDark ? 'border-gray-600' : 'border-gray-300 text-gray-400'}`}>
                                 NULL
                             </div>
                         </div>
@@ -76,17 +113,17 @@ export default function DoublyConcept({ onStartLearning }) {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
-                    <div className="bg-gray-800 p-4 rounded-lg">
-                        <h4 className="text-green-400 font-bold mb-2">✅ Pros</h4>
-                        <ul className="text-sm text-gray-400 space-y-1">
+                    <div className={`p-4 rounded-lg flex flex-col justify-center ${isDark ? 'bg-gray-800' : 'bg-green-50 border border-green-100'}`}>
+                        <h4 className="text-green-500 font-bold mb-2">✅ Pros</h4>
+                        <ul className={`text-sm space-y-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                             <li>• Traverse in both directions</li>
                             <li>• Easier to delete a node (given pointer)</li>
                             <li>• Perfect for history buttons, undos</li>
                         </ul>
                     </div>
-                    <div className="bg-gray-800 p-4 rounded-lg">
-                        <h4 className="text-red-400 font-bold mb-2">❌ Cons</h4>
-                        <ul className="text-sm text-gray-400 space-y-1">
+                    <div className={`p-4 rounded-lg flex flex-col justify-center ${isDark ? 'bg-gray-800' : 'bg-red-50 border border-red-100'}`}>
+                        <h4 className="text-red-500 font-bold mb-2">❌ Cons</h4>
+                        <ul className={`text-sm space-y-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                             <li>• Uses more memory (extra pointer)</li>
                             <li>• More pointers to update on insert/delete</li>
                         </ul>

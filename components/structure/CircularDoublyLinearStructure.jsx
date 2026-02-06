@@ -5,6 +5,7 @@ import { useStepRunner } from '@/hooks/useStepRunner';
 import CodePanel from '@/components/CodePanel';
 import MemoryBoard from '@/components/MemoryBoard';
 import ControlPanel from '@/components/ControlPanel';
+import { useTheme } from '@/app/context/ThemeContext';
 
 const OPERATION_TITLES = {
     insertHead: 'Insert at Head',
@@ -76,6 +77,7 @@ const getCodeSnippet = (op) => {
 export default function CircularDoublyLinearStructure({ engine }) {
     const [steps, setSteps] = useState([]);
     const [currentOperation, setCurrentOperation] = useState(null);
+    const { isDark } = useTheme();
 
     const {
         currentStep,
@@ -113,28 +115,31 @@ export default function CircularDoublyLinearStructure({ engine }) {
     return (
         <div className="grid grid-cols-12 gap-6 h-full pb-6">
             <div className="col-span-12 xl:col-span-7 flex flex-col gap-6">
-                <div className="bg-[#1f2937] p-4 rounded-xl border border-[#374151] flex justify-between items-center shadow-lg">
+                <div className={`p-4 rounded-xl border flex justify-between items-center shadow-lg transition-colors duration-500
+                    ${isDark ? 'bg-[#1f2937] border-[#374151]' : 'bg-white border-gray-200'}`}>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={prevStep} disabled={!hasPrev}
-                            className="p-2 rounded hover:bg-white/10 text-white disabled:opacity-30 transition-colors"
+                            className={`p-2 rounded hover:bg-opacity-10 disabled:opacity-30 transition-colors
+                                ${isDark ? 'text-white hover:bg-white' : 'text-gray-700 hover:bg-black'}`}
                         >
                             ⏮️ Prev
                         </button>
-                        <div className="text-gray-400 font-mono text-sm">
-                            Step <span className="text-white font-bold">{currentStepIndex + 1}</span> / {totalSteps}
+                        <div className={`font-mono text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                            Step <span className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{currentStepIndex + 1}</span> / {totalSteps}
                         </div>
                         <button
                             onClick={nextStep} disabled={!hasNext}
-                            className="p-2 rounded hover:bg-white/10 text-white disabled:opacity-30 transition-colors"
+                            className={`p-2 rounded hover:bg-opacity-10 disabled:opacity-30 transition-colors
+                                ${isDark ? 'text-white hover:bg-white' : 'text-gray-700 hover:bg-black'}`}
                         >
                             Next ⏭️
                         </button>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <span className={`inline-block w-2 h-2 rounded-full ${isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-600'}`}></span>
-                        <span className="text-xs text-gray-400 uppercase tracking-wider font-bold">
+                        <span className={`inline-block w-2 h-2 rounded-full ${isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></span>
+                        <span className={`text-xs uppercase tracking-wider font-bold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                             {isRunning ? 'Running' : 'Idle'}
                         </span>
                     </div>
@@ -168,9 +173,10 @@ export default function CircularDoublyLinearStructure({ engine }) {
                     />
                 </div>
 
-                <div className="bg-[#1f2937] p-6 rounded-xl border border-[#374151] min-h-[120px] shadow-lg">
+                <div className={`p-6 rounded-xl border min-h-[120px] shadow-lg transition-colors duration-500
+                    ${isDark ? 'bg-[#1f2937] border-[#374151]' : 'bg-white border-gray-200'}`}>
                     <h4 className="text-orange-400 text-xs font-bold uppercase tracking-wider mb-2">Debugger Log</h4>
-                    <p className="font-mono text-sm text-gray-300 leading-relaxed">
+                    <p className={`font-mono text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                         {currentStep?.explanation || '> Waiting for operation...'}
                     </p>
                 </div>

@@ -59,7 +59,7 @@ export class DSAEngine {
     // Action 1: Create new node
     const newNodeId = this.memory.createNode(value);
     variables.newNode = newNodeId;
-    
+
     // Step 1: Record state AFTER creating node
     this.stepEmitter.addStep(
       1,
@@ -70,7 +70,7 @@ export class DSAEngine {
 
     // Action 2: newNode->next = head
     this.memory.setNext(newNodeId, this.memory.head);
-    
+
     // Step 2: Record state AFTER linking
     this.stepEmitter.addStep(
       2,
@@ -106,19 +106,19 @@ export class DSAEngine {
     // Action 1: Create new node
     const newNodeId = this.memory.createNode(value);
     variables.newNode = newNodeId;
-    
+
     this.stepEmitter.addStep(
       1,
       { ...variables },
       { ...this.memory.getState(), highlights: [newNodeId] },
       `Node* newNode = new Node(${value});`
     );
-    
+
     // If list is empty
     if (!this.memory.head) {
       this.memory.setHead(newNodeId);
       this.memory.setTail(newNodeId);
-      
+
       this.stepEmitter.addStep(
         2,
         { ...variables },
@@ -128,7 +128,7 @@ export class DSAEngine {
     } else {
       // Action 2: tail->next = newNode
       this.memory.setNext(this.memory.tail, newNodeId);
-      
+
       this.stepEmitter.addStep(
         2,
         { ...variables },
@@ -139,7 +139,7 @@ export class DSAEngine {
       // Action 3: tail = newNode
       this.memory.setTail(newNodeId);
       variables.tail = newNodeId;
-      
+
       this.stepEmitter.addStep(
         3,
         { ...variables, tail: newNodeId },
@@ -179,12 +179,12 @@ export class DSAEngine {
     const nextNode = this.memory.getNode(this.memory.head).next;
     this.memory.setHead(nextNode);
     variables.head = nextNode;
-    
+
     // If list becomes empty, update tail
     if (!nextNode) {
       this.memory.setTail(null);
     }
-    
+
     this.stepEmitter.addStep(
       3,
       { ...variables },
@@ -194,7 +194,7 @@ export class DSAEngine {
 
     // Action 3: delete temp
     this.memory.deleteNode(variables.temp);
-    
+
     this.stepEmitter.addStep(
       4,
       { ...variables },
@@ -293,13 +293,13 @@ export class DSAEngine {
     if (!nextNode) {
       this.memory.setTail(prev);
     }
-    
+
     // Step 10: Unlink (Node still visible but disconnected)
     this.stepEmitter.addStep(
-        10,
-        { ...variables },
-        { ...this.memory.getState(), highlights: [prev, nodeToDelete] },
-        `curr->next = temp->next;`
+      10,
+      { ...variables },
+      { ...this.memory.getState(), highlights: [prev, nodeToDelete] },
+      `curr->next = temp->next;`
     );
 
     // Actual Deletion
@@ -367,20 +367,20 @@ export class DSAEngine {
 
     return this.stepEmitter.getSteps();
   }
-  
+
   // Singly Linked List: Delete Tail
   singlyDeleteTail() {
     const variables = { tail: this.memory.tail, temp: null, current: this.memory.head };
 
     // Case 0: Empty list
     if (!this.memory.head) {
-      this.stepEmitter.addStep(0, {...variables}, this.memory.getState(), `if (head == nullptr) return;`);
+      this.stepEmitter.addStep(0, { ...variables }, this.memory.getState(), `if (head == nullptr) return;`);
       return this.stepEmitter.getSteps();
     }
 
     // Case 1: Single node
     if (this.memory.head === this.memory.tail) {
-      this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `if (head == tail) { delete head; head = tail = nullptr; }`);
+      this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `if (head == tail) { delete head; head = tail = nullptr; }`);
       this.memory.deleteNode(this.memory.head);
       this.memory.setHead(null);
       this.memory.setTail(null);
@@ -390,32 +390,32 @@ export class DSAEngine {
     // Case 2: Traversing to find second-to-last
     let current = this.memory.head;
     let stepLine = 2;
-    
-    this.stepEmitter.addStep(stepLine, {...variables}, this.memory.getState(), `Node* current = head;`);
+
+    this.stepEmitter.addStep(stepLine, { ...variables }, this.memory.getState(), `Node* current = head;`);
 
     // Ensure we have a next node to check
     while (this.memory.getNode(current).next !== this.memory.tail) {
       current = this.memory.getNode(current).next;
       variables.current = current;
-      this.stepEmitter.addStep(stepLine++, {...variables}, this.memory.getState(), `while(current->next != tail) { current = current->next; }`);
+      this.stepEmitter.addStep(stepLine++, { ...variables }, this.memory.getState(), `while(current->next != tail) { current = current->next; }`);
     }
 
     variables.current = current;
 
     // Action: Set current->next to null
     this.memory.setNext(current, null);
-    
-    this.stepEmitter.addStep(stepLine++, {...variables}, this.memory.getState(), `current->next = nullptr;`);
+
+    this.stepEmitter.addStep(stepLine++, { ...variables }, this.memory.getState(), `current->next = nullptr;`);
 
     // Delete old tail
     this.memory.deleteNode(this.memory.tail);
-    this.stepEmitter.addStep(stepLine++, {...variables}, this.memory.getState(), `delete tail;`);
-    
+    this.stepEmitter.addStep(stepLine++, { ...variables }, this.memory.getState(), `delete tail;`);
+
     // Update tail pointer
     this.memory.setTail(current);
     variables.tail = current;
-    
-    this.stepEmitter.addStep(stepLine, {...variables}, this.memory.getState(), `tail = current;`);
+
+    this.stepEmitter.addStep(stepLine, { ...variables }, this.memory.getState(), `tail = current;`);
 
     return this.stepEmitter.getSteps();
   }
@@ -424,17 +424,17 @@ export class DSAEngine {
   executeDoublyOperation(operation, params) {
     switch (operation) {
       case 'insertHead':
-          return this.doublyInsertHead(params.value);
+        return this.doublyInsertHead(params.value);
       case 'insertTail':
-          return this.doublyInsertTail(params.value);
+        return this.doublyInsertTail(params.value);
       case 'deleteHead':
-          return this.doublyDeleteHead();
+        return this.doublyDeleteHead();
       case 'deleteTail':
-          return this.doublyDeleteTail();
+        return this.doublyDeleteTail();
       case 'deleteValue':
-          return this.doublyDeleteValue(params.value);
+        return this.doublyDeleteValue(params.value);
       case 'search':
-          return this.doublySearch(params.value);
+        return this.doublySearch(params.value);
       case 'insertAfterCurrent':
         return this.doublyInsertAfterCurrent(params.value);
       case 'deleteForwardHistory':
@@ -466,48 +466,48 @@ export class DSAEngine {
     let current = this.memory.head;
 
     while (current) {
-        const node = this.memory.getNode(current);
-        variables.current = current;
+      const node = this.memory.getNode(current);
+      variables.current = current;
 
-        // Check Match
+      // Check Match
+      this.stepEmitter.addStep(
+        stepCount,
+        { ...variables },
+        { ...this.memory.getState(), highlights: [current] },
+        `if (current->data == val)`
+      );
+
+      if (node.value == value) { // Loose equality for string/number mixing
         this.stepEmitter.addStep(
-            stepCount,
-            { ...variables },
-            { ...this.memory.getState(), highlights: [current] },
-            `if (current->data == val)`
+          stepCount + 1,
+          { ...variables },
+          { ...this.memory.getState(), highlights: [current], success: true },
+          `return index; // Found at ${variables.index}`
         );
+        return this.stepEmitter.getSteps();
+      }
 
-        if (node.value == value) { // Loose equality for string/number mixing
-            this.stepEmitter.addStep(
-                stepCount + 1,
-                { ...variables },
-                { ...this.memory.getState(), highlights: [current], success: true },
-                `return index; // Found at ${variables.index}`
-            );
-            return this.stepEmitter.getSteps();
-        }
-        
-        stepCount++;
+      stepCount++;
 
-        // Move Next
-        current = node.next;
-        variables.index++;
-        
-        if (current) {
-            this.stepEmitter.addStep(
-                stepCount++,
-                { ...variables },
-                { ...this.memory.getState(), highlights: [current] },
-                `current = current->next; index++;`
-            );
-        }
+      // Move Next
+      current = node.next;
+      variables.index++;
+
+      if (current) {
+        this.stepEmitter.addStep(
+          stepCount++,
+          { ...variables },
+          { ...this.memory.getState(), highlights: [current] },
+          `current = current->next; index++;`
+        );
+      }
     }
 
     this.stepEmitter.addStep(
-        stepCount,
-        { ...variables, current: null },
-        this.memory.getState(),
-        `return -1; // Not found`
+      stepCount,
+      { ...variables, current: null },
+      this.memory.getState(),
+      `return -1; // Not found`
     );
 
     return this.stepEmitter.getSteps();
@@ -515,134 +515,134 @@ export class DSAEngine {
 
   // Doubly: Delete Tail
   doublyDeleteTail() {
-      const variables = { tail: this.memory.tail, temp: null };
+    const variables = { tail: this.memory.tail, temp: null };
 
-      if (!this.memory.tail) return this.stepEmitter.getSteps();
+    if (!this.memory.tail) return this.stepEmitter.getSteps();
 
-      // Step 1: temp = tail
-      variables.temp = this.memory.tail;
-      this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* temp = tail;`);
+    // Step 1: temp = tail
+    variables.temp = this.memory.tail;
+    this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* temp = tail;`);
 
-      // Step 2: tail = tail->prev
-      const prevNode = this.memory.getNode(this.memory.tail).prev;
-      variables.tail = prevNode;
-      this.memory.setTail(prevNode);
-      this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `tail = tail->prev;`);
+    // Step 2: tail = tail->prev
+    const prevNode = this.memory.getNode(this.memory.tail).prev;
+    variables.tail = prevNode;
+    this.memory.setTail(prevNode);
+    this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `tail = tail->prev;`);
 
-      // Step 3: if tail != null, tail->next = null
-      if (prevNode) {
-          this.memory.setNext(prevNode, null);
-          this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `if (tail) tail->next = nullptr;`);
-      } else {
-          // List empty
-          this.memory.setHead(null);
-          this.stepEmitter.addStep(3, { ...variables, head: null }, this.memory.getState(), `head = nullptr; // List empty`);
-      }
+    // Step 3: if tail != null, tail->next = null
+    if (prevNode) {
+      this.memory.setNext(prevNode, null);
+      this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `if (tail) tail->next = nullptr;`);
+    } else {
+      // List empty
+      this.memory.setHead(null);
+      this.stepEmitter.addStep(3, { ...variables, head: null }, this.memory.getState(), `head = nullptr; // List empty`);
+    }
 
-      // Step 4: delete temp
-      this.memory.deleteNode(variables.temp);
-      this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `delete temp;`);
+    // Step 4: delete temp
+    this.memory.deleteNode(variables.temp);
+    this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `delete temp;`);
 
-      return this.stepEmitter.getSteps();
+    return this.stepEmitter.getSteps();
   }
 
   // Doubly: Delete Value
   doublyDeleteValue(value) {
-      const variables = { val: value, curr: this.memory.head };
-      let stepCount = 1;
+    const variables = { val: value, curr: this.memory.head };
+    let stepCount = 1;
 
-      // Step 1: Start traversal
-      this.stepEmitter.addStep(stepCount++, { ...variables }, this.memory.getState(), `Node* curr = head;`);
+    // Step 1: Start traversal
+    this.stepEmitter.addStep(stepCount++, { ...variables }, this.memory.getState(), `Node* curr = head;`);
 
-      let curr = this.memory.head;
-      let found = false;
+    let curr = this.memory.head;
+    let found = false;
 
-      while (curr) {
-          variables.curr = curr;
-          const node = this.memory.getNode(curr);
+    while (curr) {
+      variables.curr = curr;
+      const node = this.memory.getNode(curr);
 
-          // Check match
-          this.stepEmitter.addStep(
-              stepCount++, 
-              { ...variables }, 
-              { ...this.memory.getState(), highlights: [curr] }, 
-              `while (curr != nullptr && curr->data != val)`
-          );
-
-          if (node.value == value) {
-              found = true;
-              break;
-          }
-
-          curr = node.next;
-          if (curr) {
-             this.stepEmitter.addStep(
-                stepCount++,
-                { ...variables, curr },
-                { ...this.memory.getState(), highlights: [curr] },
-                `curr = curr->next;`
-             );
-          }
-      }
-
-      if (!found) { // Not found
-           this.stepEmitter.addStep(stepCount, { ...variables }, this.memory.getState(), `if (curr == nullptr) return;`);
-           return this.stepEmitter.getSteps();
-      }
-
-      // Found node at 'curr'
-      const nodeToDelete = curr;
-      const prevNode = this.memory.getNode(nodeToDelete).prev;
-      const nextNode = this.memory.getNode(nodeToDelete).next;
-
-      // Step: Unlink Prev
-      if (prevNode) {
-          this.memory.setNext(prevNode, nextNode);
-          this.stepEmitter.addStep(
-              stepCount++, 
-              { ...variables }, 
-              { ...this.memory.getState(), highlights: [prevNode, nodeToDelete] }, 
-              `if (curr->prev) curr->prev->next = curr->next;`
-          );
-      } else {
-          this.memory.setHead(nextNode);
-          this.stepEmitter.addStep(
-              stepCount++, 
-              { ...variables, head: nextNode }, 
-              this.memory.getState(), 
-              `else head = curr->next;`
-          );
-      }
-
-      // Step: Unlink Next
-      if (nextNode) {
-          this.memory.setPrev(nextNode, prevNode);
-          this.stepEmitter.addStep(
-              stepCount++, 
-              { ...variables }, 
-              { ...this.memory.getState(), highlights: [nodeToDelete, nextNode] }, 
-              `if (curr->next) curr->next->prev = curr->prev;`
-          );
-      } else {
-          this.memory.setTail(prevNode);
-          this.stepEmitter.addStep(
-              stepCount++, 
-              { ...variables, tail: prevNode }, 
-              this.memory.getState(), 
-              `else tail = curr->prev;`
-          );
-      }
-
-      // Step: Delete
-      this.memory.deleteNode(nodeToDelete);
+      // Check match
       this.stepEmitter.addStep(
-          stepCount++, 
-          { ...variables }, 
-          this.memory.getState(), 
-          `delete curr;`
+        stepCount++,
+        { ...variables },
+        { ...this.memory.getState(), highlights: [curr] },
+        `while (curr != nullptr && curr->data != val)`
       );
 
+      if (node.value == value) {
+        found = true;
+        break;
+      }
+
+      curr = node.next;
+      if (curr) {
+        this.stepEmitter.addStep(
+          stepCount++,
+          { ...variables, curr },
+          { ...this.memory.getState(), highlights: [curr] },
+          `curr = curr->next;`
+        );
+      }
+    }
+
+    if (!found) { // Not found
+      this.stepEmitter.addStep(stepCount, { ...variables }, this.memory.getState(), `if (curr == nullptr) return;`);
       return this.stepEmitter.getSteps();
+    }
+
+    // Found node at 'curr'
+    const nodeToDelete = curr;
+    const prevNode = this.memory.getNode(nodeToDelete).prev;
+    const nextNode = this.memory.getNode(nodeToDelete).next;
+
+    // Step: Unlink Prev
+    if (prevNode) {
+      this.memory.setNext(prevNode, nextNode);
+      this.stepEmitter.addStep(
+        stepCount++,
+        { ...variables },
+        { ...this.memory.getState(), highlights: [prevNode, nodeToDelete] },
+        `if (curr->prev) curr->prev->next = curr->next;`
+      );
+    } else {
+      this.memory.setHead(nextNode);
+      this.stepEmitter.addStep(
+        stepCount++,
+        { ...variables, head: nextNode },
+        this.memory.getState(),
+        `else head = curr->next;`
+      );
+    }
+
+    // Step: Unlink Next
+    if (nextNode) {
+      this.memory.setPrev(nextNode, prevNode);
+      this.stepEmitter.addStep(
+        stepCount++,
+        { ...variables },
+        { ...this.memory.getState(), highlights: [nodeToDelete, nextNode] },
+        `if (curr->next) curr->next->prev = curr->prev;`
+      );
+    } else {
+      this.memory.setTail(prevNode);
+      this.stepEmitter.addStep(
+        stepCount++,
+        { ...variables, tail: prevNode },
+        this.memory.getState(),
+        `else tail = curr->prev;`
+      );
+    }
+
+    // Step: Delete
+    this.memory.deleteNode(nodeToDelete);
+    this.stepEmitter.addStep(
+      stepCount++,
+      { ...variables },
+      this.memory.getState(),
+      `delete curr;`
+    );
+
+    return this.stepEmitter.getSteps();
   }
 
   // Doubly LL: Visit New Page (Browser History)
@@ -750,7 +750,7 @@ export class DSAEngine {
 
     this.memory.setCurr(newNodeId);
     this.memory.setTail(newNodeId); // Tail is always current in browser history (if linear)? No, tail is end.
-    
+
     return this.stepEmitter.getSteps();
   }
 
@@ -823,35 +823,35 @@ export class DSAEngine {
 
     return this.stepEmitter.getSteps();
   }
-  
+
   // Doubly: Insert Head
   doublyInsertHead(value) {
     const variables = { value, newNode: null, head: this.memory.head };
-    
+
     // Action 1: Create Node
     const newNodeId = this.memory.createNode(value);
     variables.newNode = newNodeId;
-    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Node* newNode = new Node(${value});`);
+    this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* newNode = new Node(${value});`);
 
     // Action 2: newNode->next = head
     this.memory.setNext(newNodeId, this.memory.head);
-    this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `newNode->next = head;`);
+    this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `newNode->next = head;`);
 
     // Action 3: if head != null, head->prev = newNode
     if (this.memory.head) {
       this.memory.setPrev(this.memory.head, newNodeId);
-      this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `head->prev = newNode;`);
+      this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `head->prev = newNode;`);
     }
 
     // Action 4: head = newNode
     this.memory.setHead(newNodeId);
     variables.head = newNodeId;
-    this.stepEmitter.addStep(4, {...variables}, this.memory.getState(), `head = newNode;`);
+    this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `head = newNode;`);
 
     // Action 5: Handle tail
     if (!this.memory.tail) {
       this.memory.setTail(newNodeId);
-      this.stepEmitter.addStep(5, {...variables}, this.memory.getState(), `tail = newNode; // List was empty`);
+      this.stepEmitter.addStep(5, { ...variables }, this.memory.getState(), `tail = newNode; // List was empty`);
     }
 
     return this.stepEmitter.getSteps();
@@ -864,27 +864,27 @@ export class DSAEngine {
     // Action 1: Create Node
     const newNodeId = this.memory.createNode(value);
     variables.newNode = newNodeId;
-    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Node* newNode = new Node(${value});`);
+    this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* newNode = new Node(${value});`);
 
     // Action 2: newNode->prev = tail
     this.memory.setPrev(newNodeId, this.memory.tail);
-    this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `newNode->prev = tail;`);
+    this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `newNode->prev = tail;`);
 
     // Action 3: if tail != null, tail->next = newNode
     if (this.memory.tail) {
       this.memory.setNext(this.memory.tail, newNodeId);
-      this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `tail->next = newNode;`);
+      this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `tail->next = newNode;`);
     }
 
     // Action 4: tail = newNode
     this.memory.setTail(newNodeId);
     variables.tail = newNodeId;
-    this.stepEmitter.addStep(4, {...variables}, this.memory.getState(), `tail = newNode;`);
+    this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `tail = newNode;`);
 
     // Action 5: Handle head
     if (!this.memory.head) {
       this.memory.setHead(newNodeId);
-      this.stepEmitter.addStep(5, {...variables}, this.memory.getState(), `head = newNode; // List was empty`);
+      this.stepEmitter.addStep(5, { ...variables }, this.memory.getState(), `head = newNode; // List was empty`);
     }
 
     return this.stepEmitter.getSteps();
@@ -893,35 +893,35 @@ export class DSAEngine {
   // Doubly: Delete Head
   doublyDeleteHead() {
     const variables = { head: this.memory.head, temp: null };
-    
+
     if (!this.memory.head) return this.stepEmitter.getSteps();
 
     // Action 1: temp = head
     variables.temp = this.memory.head;
-    this.stepEmitter.addStep(1, {...variables}, this.memory.getState(), `Node* temp = head;`);
+    this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* temp = head;`);
 
     // Action 2: head = head->next
     const nextNode = this.memory.getNode(this.memory.head).next;
     this.memory.setHead(nextNode);
     variables.head = nextNode;
-    this.stepEmitter.addStep(2, {...variables}, this.memory.getState(), `head = head->next;`);
+    this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `head = head->next;`);
 
     // Action 3: if head != nullptr, head->prev = nullptr
     if (nextNode) {
       this.memory.setPrev(nextNode, null);
-      this.stepEmitter.addStep(3, {...variables}, this.memory.getState(), `if (head) head->prev = nullptr;`);
+      this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `if (head) head->prev = nullptr;`);
     } else {
       this.memory.setTail(null); // List became empty
-      this.stepEmitter.addStep(3, {...variables, head: null}, this.memory.getState(), `tail = nullptr; // List empty`);
+      this.stepEmitter.addStep(3, { ...variables, head: null }, this.memory.getState(), `tail = nullptr; // List empty`);
     }
 
     // Action 4: delete temp
     this.memory.deleteNode(variables.temp);
-    this.stepEmitter.addStep(4, {...variables}, this.memory.getState(), `delete temp;`);
+    this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `delete temp;`);
 
     return this.stepEmitter.getSteps();
   }
-  
+
   // Placeholder methods for other list types
   // Circular Singly LL: Round Robin Scheduling + Generic
   executeCircularSinglyOperation(operation, params) {
@@ -1024,18 +1024,18 @@ export class DSAEngine {
     if (!this.memory.head) return this.stepEmitter.getSteps();
 
     const headId = this.memory.head;
-    
+
     // Case 1: Single Node
     if (this.memory.getNext(headId) === headId) {
-        this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head->next == head) { // Single node`);
-        
-        this.memory.setHead(null);
-        this.memory.setTail(null);
-        this.memory.setCurr(null);
-        this.memory.deleteNode(headId);
-        
-        this.stepEmitter.addStep(2, { head: null, tail: null }, this.memory.getState(), `head = tail = nullptr; delete head;`);
-        return this.stepEmitter.getSteps();
+      this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head->next == head) { // Single node`);
+
+      this.memory.setHead(null);
+      this.memory.setTail(null);
+      this.memory.setCurr(null);
+      this.memory.deleteNode(headId);
+
+      this.stepEmitter.addStep(2, { head: null, tail: null }, this.memory.getState(), `head = tail = nullptr; delete head;`);
+      return this.stepEmitter.getSteps();
     }
 
     // Case 2: Multiple Nodes
@@ -1043,37 +1043,37 @@ export class DSAEngine {
     const tailIs = this.memory.tail;
 
     this.stepEmitter.addStep(
-        1,
-        { ...variables },
-        { ...this.memory.getState(), highlights: [headId] },
-        `Node* temp = head;`
+      1,
+      { ...variables },
+      { ...this.memory.getState(), highlights: [headId] },
+      `Node* temp = head;`
     );
 
     // tail->next = newHead
     this.memory.setNext(tailIs, newHead);
     this.stepEmitter.addStep(
-        2,
-        { ...variables },
-        this.memory.getState(),
-        `tail->next = head->next;`
+      2,
+      { ...variables },
+      this.memory.getState(),
+      `tail->next = head->next;`
     );
 
     // head = newHead
     this.memory.setHead(newHead);
     this.stepEmitter.addStep(
-        3,
-        { ...variables, head: newHead },
-        this.memory.getState(),
-        `head = head->next;`
+      3,
+      { ...variables, head: newHead },
+      this.memory.getState(),
+      `head = head->next;`
     );
 
     // delete old head
     this.memory.deleteNode(headId);
     this.stepEmitter.addStep(
-        4,
-        { ...variables },
-        this.memory.getState(),
-        `delete temp;`
+      4,
+      { ...variables },
+      this.memory.getState(),
+      `delete temp;`
     );
 
     return this.stepEmitter.getSteps();
@@ -1089,34 +1089,34 @@ export class DSAEngine {
 
     // Case 1: Single Node
     if (headId === tailId) {
-        this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head == tail) { // Single node`);
-        
-        this.memory.setHead(null);
-        this.memory.setTail(null);
-        this.memory.setCurr(null);
-        this.memory.deleteNode(headId);
-        
-        this.stepEmitter.addStep(2, { head: null, tail: null }, this.memory.getState(), `head = tail = nullptr; delete tail;`);
-        return this.stepEmitter.getSteps();
+      this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head == tail) { // Single node`);
+
+      this.memory.setHead(null);
+      this.memory.setTail(null);
+      this.memory.setCurr(null);
+      this.memory.deleteNode(headId);
+
+      this.stepEmitter.addStep(2, { head: null, tail: null }, this.memory.getState(), `head = tail = nullptr; delete tail;`);
+      return this.stepEmitter.getSteps();
     }
 
     // Case 2: Multiple Nodes (Traverse to find prev to tail)
     let curr = headId;
     this.stepEmitter.addStep(
-        1,
-        { ...variables, curr },
-        { ...this.memory.getState(), highlights: [curr] },
-        `Node* curr = head;`
+      1,
+      { ...variables, curr },
+      { ...this.memory.getState(), highlights: [curr] },
+      `Node* curr = head;`
     );
 
     while (this.memory.getNode(curr).next !== tailId) {
-        curr = this.memory.getNode(curr).next;
-        this.stepEmitter.addStep(
-            2,
-            { ...variables, curr },
-            { ...this.memory.getState(), highlights: [curr] },
-            `while (curr->next != tail) { curr = curr->next; }`
-        );
+      curr = this.memory.getNode(curr).next;
+      this.stepEmitter.addStep(
+        2,
+        { ...variables, curr },
+        { ...this.memory.getState(), highlights: [curr] },
+        `while (curr->next != tail) { curr = curr->next; }`
+      );
     }
 
     // Found prev (curr)
@@ -1126,28 +1126,28 @@ export class DSAEngine {
     // curr->next = head
     this.memory.setNext(newTail, headId);
     this.stepEmitter.addStep(
-        3,
-        { ...variables },
-        this.memory.getState(),
-        `curr->next = head;`
+      3,
+      { ...variables },
+      this.memory.getState(),
+      `curr->next = head;`
     );
 
     // tail = curr
     this.memory.setTail(newTail);
     this.stepEmitter.addStep(
-        4,
-        { ...variables, tail: newTail },
-        this.memory.getState(),
-        `tail = curr;`
+      4,
+      { ...variables, tail: newTail },
+      this.memory.getState(),
+      `tail = curr;`
     );
 
     // delete old tail
     this.memory.deleteNode(tailId);
     this.stepEmitter.addStep(
-        5,
-        { ...variables },
-        this.memory.getState(),
-        `delete oldTail;`
+      5,
+      { ...variables },
+      this.memory.getState(),
+      `delete oldTail;`
     );
 
     return this.stepEmitter.getSteps();
@@ -1161,96 +1161,96 @@ export class DSAEngine {
     // Step 1: Check Head
     const headId = this.memory.head;
     const headNode = this.memory.getNode(headId);
-    
+
     // Check if head matches
     if (headNode.value == value) {
-        this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head->data == val)`);
-        
-        // Case: Only one node
-        if (this.memory.getNext(headId) === headId) {
-            this.memory.setHead(null);
-            this.memory.setTail(null);
-            this.memory.setCurr(null);
-            this.memory.deleteNode(headId);
-            this.stepEmitter.addStep(2, { ...variables, head: null }, this.memory.getState(), `head = tail = nullptr; delete head;`);
-            return this.stepEmitter.getSteps();
-        }
+      this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [headId] }, `if (head->data == val)`);
 
-        // Case: Multiple Nodes (Delete Head)
-        const newHead = headNode.next;
-        const tail = this.memory.tail;
-        
-        // tail->next = newHead
-        this.memory.setNext(tail, newHead);
-        
-        // head = newHead
-        this.memory.setHead(newHead);
-        
+      // Case: Only one node
+      if (this.memory.getNext(headId) === headId) {
+        this.memory.setHead(null);
+        this.memory.setTail(null);
+        this.memory.setCurr(null);
         this.memory.deleteNode(headId);
-        
-        this.stepEmitter.addStep(
-            3, 
-            { ...variables, head: newHead }, 
-            this.memory.getState(),
-            `tail->next = head->next; head = head->next; delete oldHead;`
-        );
+        this.stepEmitter.addStep(2, { ...variables, head: null }, this.memory.getState(), `head = tail = nullptr; delete head;`);
         return this.stepEmitter.getSteps();
+      }
+
+      // Case: Multiple Nodes (Delete Head)
+      const newHead = headNode.next;
+      const tail = this.memory.tail;
+
+      // tail->next = newHead
+      this.memory.setNext(tail, newHead);
+
+      // head = newHead
+      this.memory.setHead(newHead);
+
+      this.memory.deleteNode(headId);
+
+      this.stepEmitter.addStep(
+        3,
+        { ...variables, head: newHead },
+        this.memory.getState(),
+        `tail->next = head->next; head = head->next; delete oldHead;`
+      );
+      return this.stepEmitter.getSteps();
     }
-    
+
     // Step 2: Traverse
     let curr = headId;
     let found = false;
-    
+
     // We look for the node BEFORE the target to unlink it
     // Start checking from head->next
-    
+
     this.stepEmitter.addStep(
-        4,
-        { ...variables, curr },
-        { ...this.memory.getState(), highlights: [curr] },
-        `Node* curr = head; while(curr->next != head)`
+      4,
+      { ...variables, curr },
+      { ...this.memory.getState(), highlights: [curr] },
+      `Node* curr = head; while(curr->next != head)`
     );
 
     while (this.memory.getNode(curr).next !== headId) {
-        const nextId = this.memory.getNode(curr).next;
-        const nextNode = this.memory.getNode(nextId);
-        
-        if (nextNode.value == value) {
-            found = true;
-            
-            // Found it at nextId
-            const toDelete = nextId;
-            const afterDelete = nextNode.next;
-            
-            // Unlink: curr->next = toDelete->next
-            this.memory.setNext(curr, afterDelete);
-            
-            // Update Tail checking
-            if (toDelete === this.memory.tail) {
-                this.memory.setTail(curr);
-                variables.tail = curr;
-            }
-            
-            this.memory.deleteNode(toDelete);
-            
-            this.stepEmitter.addStep(
-                5,
-                { ...variables, curr },
-                this.memory.getState(),
-                `curr->next = curr->next->next; delete node;`
-            );
-            return this.stepEmitter.getSteps();
+      const nextId = this.memory.getNode(curr).next;
+      const nextNode = this.memory.getNode(nextId);
+
+      if (nextNode.value == value) {
+        found = true;
+
+        // Found it at nextId
+        const toDelete = nextId;
+        const afterDelete = nextNode.next;
+
+        // Unlink: curr->next = toDelete->next
+        this.memory.setNext(curr, afterDelete);
+
+        // Update Tail checking
+        if (toDelete === this.memory.tail) {
+          this.memory.setTail(curr);
+          variables.tail = curr;
         }
-        
-        curr = nextId;
+
+        this.memory.deleteNode(toDelete);
+
         this.stepEmitter.addStep(
-            6,
-            { ...variables, curr },
-            { ...this.memory.getState(), highlights: [curr] },
-            `curr = curr->next;`
+          5,
+          { ...variables, curr },
+          this.memory.getState(),
+          `curr->next = curr->next->next; delete node;`
         );
+        return this.stepEmitter.getSteps();
+      }
+
+      curr = nextId;
+      this.stepEmitter.addStep(
+        6,
+        { ...variables, curr },
+        { ...this.memory.getState(), highlights: [curr] },
+        `curr = curr->next;`
+      );
     }
-    
+
     // Not found
     this.stepEmitter.addStep(7, { ...variables }, this.memory.getState(), `// Value not found`);
     return this.stepEmitter.getSteps();
@@ -1430,78 +1430,78 @@ export class DSAEngine {
 
   // Circular Singly: Move to Next (Next Track)
   circularSinglyMoveToNext() {
-      const variables = { curr: this.memory.curr };
-      
-      if (!this.memory.curr) return this.stepEmitter.getSteps();
-      
-      const currId = this.memory.curr;
-      const nextId = this.memory.getNode(currId).next;
-      
-      this.stepEmitter.addStep(
-          1,
-          { ...variables, next: nextId },
-          { ...this.memory.getState(), highlights: [currId] },
-          `// Moving to next track`
-      );
-      
-      // Step 2: curr = curr->next
-      this.memory.setCurr(nextId);
-      
-      this.stepEmitter.addStep(
-          2,
-          { ...variables, curr: nextId },
-          { ...this.memory.getState(), highlights: [nextId] },
-          `curr = curr->next;`
-      );
-      
-      return this.stepEmitter.getSteps();
+    const variables = { curr: this.memory.curr };
+
+    if (!this.memory.curr) return this.stepEmitter.getSteps();
+
+    const currId = this.memory.curr;
+    const nextId = this.memory.getNode(currId).next;
+
+    this.stepEmitter.addStep(
+      1,
+      { ...variables, next: nextId },
+      { ...this.memory.getState(), highlights: [currId] },
+      `// Moving to next track`
+    );
+
+    // Step 2: curr = curr->next
+    this.memory.setCurr(nextId);
+
+    this.stepEmitter.addStep(
+      2,
+      { ...variables, curr: nextId },
+      { ...this.memory.getState(), highlights: [nextId] },
+      `curr = curr->next;`
+    );
+
+    return this.stepEmitter.getSteps();
   }
 
   // Circular Singly: Move to Prev (Prev Track) - O(N)
   circularSinglyMoveToPrev() {
-      const variables = { curr: this.memory.curr, temp: null };
-      
-      if (!this.memory.curr) return this.stepEmitter.getSteps();
-      
-      const currId = this.memory.curr;
-      
-      let temp = currId;
-      this.stepEmitter.addStep(
-          1,
-          { ...variables, temp },
-          { ...this.memory.getState(), highlights: [temp] },
-          `Node* temp = curr;`
-      );
+    const variables = { curr: this.memory.curr, temp: null };
 
-      // Step 2: Traverse until temp->next == curr
-      let nextOfTemp = this.memory.getNode(temp).next;
-      let count = 0;
-      
-      // Safety break
-      while (nextOfTemp !== currId && count < 20) {
-          temp = nextOfTemp;
-          nextOfTemp = this.memory.getNode(temp).next;
-          
-          this.stepEmitter.addStep(
-              2,
-              { ...variables, temp },
-              { ...this.memory.getState(), highlights: [temp] },
-              `while (temp->next != curr) { temp = temp->next; }`
-          );
-          count++;
-      }
-      
-      // Step 3: curr = temp
-      this.memory.setCurr(temp);
-      
+    if (!this.memory.curr) return this.stepEmitter.getSteps();
+
+    const currId = this.memory.curr;
+
+    let temp = currId;
+    this.stepEmitter.addStep(
+      1,
+      { ...variables, temp },
+      { ...this.memory.getState(), highlights: [temp] },
+      `Node* temp = curr;`
+    );
+
+    // Step 2: Traverse until temp->next == curr
+    let nextOfTemp = this.memory.getNode(temp).next;
+    let count = 0;
+
+    // Safety break
+    while (nextOfTemp !== currId && count < 20) {
+      temp = nextOfTemp;
+      nextOfTemp = this.memory.getNode(temp).next;
+
       this.stepEmitter.addStep(
-          3,
-          { ...variables, curr: temp },
-          { ...this.memory.getState(), highlights: [temp] },
-          `curr = temp; // Found previous node`
+        2,
+        { ...variables, temp },
+        { ...this.memory.getState(), highlights: [temp] },
+        `while (temp->next != curr) { temp = temp->next; }`
       );
-      
-      return this.stepEmitter.getSteps();
+      count++;
+    }
+
+    // Step 3: curr = temp
+    this.memory.setCurr(temp);
+
+    this.stepEmitter.addStep(
+      3,
+      { ...variables, curr: temp },
+      { ...this.memory.getState(), highlights: [temp] },
+      `curr = temp; // Found previous node`
+    );
+
+    return this.stepEmitter.getSteps();
   }
 
   // Circular Doubly LL: Task Switcher + Generic
@@ -1510,17 +1510,15 @@ export class DSAEngine {
       // Application Specific
       case 'insertApp':
         return this.circularDoublyInsertHead(params.value); // Add app to front
+      case 'openApp':
+        return this.circularDoublyOpenApp(params.value); // Smart switch or launch
       case 'closeApp':
         return this.circularDoublyDeleteCurr(); // Close active app
       case 'moveToNext':
         return this.circularDoublyMoveToNext();
       case 'moveToPrev':
         return this.circularDoublyMoveToPrev();
-      // Fibonacci Heap
-      case 'insertRoot':
-        return this.circularDoublyInsertRoot(params.value);
-      case 'removeMin':
-        return this.circularDoublyRemoveMin();
+
 
       // Generic Operations
       case 'insertHead':
@@ -1539,44 +1537,50 @@ export class DSAEngine {
     }
   }
 
-  circularDoublyInsertRoot(value) {
-      const variables = { value, newNode: null };
-      const newNodeId = this.memory.createNode(value);
-      variables.newNode = newNodeId;
 
-      this.stepEmitter.addStep(1, { ...variables }, this.memory.getState(), `Node* tree = new Node(${value});`);
 
-      if (!this.memory.head) {
-        this.memory.setHead(newNodeId);
-        this.memory.setTail(newNodeId);
-        this.memory.setNext(newNodeId, newNodeId);
-        this.memory.setPrev(newNodeId, newNodeId);
-        this.memory.setCurr(newNodeId);
-        this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `head = tree; tree->next = tree; tree->prev = tree;`);
-      } else {
-        const head = this.memory.head;
-        const tail = this.memory.tail;
-        
-        this.memory.setNext(newNodeId, head);
-        this.memory.setPrev(newNodeId, tail);
-        this.memory.setNext(tail, newNodeId);
-        this.memory.setPrev(head, newNodeId);
-        
-        this.memory.setHead(newNodeId);
-        
-        this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `tree->next = head; tree->prev = tail; tail->next = tree; head->prev = tree; head = tree;`);
+  circularDoublyOpenApp(value) {
+    if (!this.memory.head) {
+      return this.circularDoublyInsertHead(value);
+    }
+
+    const variables = { value, curr: this.memory.head };
+    let curr = this.memory.head;
+    let found = false;
+    const headId = this.memory.head;
+
+    // 1. Search for existing app
+    do {
+      const node = this.memory.getNode(curr);
+      if (node.value === value) {
+        found = true;
+        break;
       }
-      return this.stepEmitter.getSteps();
-  }
+      curr = node.next;
+    } while (curr !== headId);
 
-  circularDoublyRemoveMin() {
-      if (!this.memory.head) return [];
-      
-      const z = this.memory.head;
-      const variables = { z };
-      this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [z] }, `// Removing minimum node (head)`);
-      
-      return this.circularDoublyDeleteNode(z);
+    if (found) {
+      // Switch to it
+      this.stepEmitter.addStep(
+        1,
+        { ...variables, target: curr },
+        { ...this.memory.getState(), highlights: [curr] },
+        `// App is already running. Switching...`
+      );
+
+      this.memory.setCurr(curr);
+
+      this.stepEmitter.addStep(
+        2,
+        { ...variables, curr },
+        { ...this.memory.getState(), highlights: [curr] },
+        `curr = foundApp;`
+      );
+      return this.stepEmitter.getSteps();
+    } else {
+      // Not found, launch new
+      return this.circularDoublyInsertHead(value);
+    }
   }
 
   circularDoublyInsertHead(value) {
@@ -1633,111 +1637,111 @@ export class DSAEngine {
   }
 
   circularDoublyDeleteHead() {
-      if (!this.memory.head) return [];
-      return this.circularDoublyDeleteNode(this.memory.head);
+    if (!this.memory.head) return [];
+    return this.circularDoublyDeleteNode(this.memory.head);
   }
 
   circularDoublyDeleteTail() {
-      if (!this.memory.tail) return [];
-      return this.circularDoublyDeleteNode(this.memory.tail);
+    if (!this.memory.tail) return [];
+    return this.circularDoublyDeleteNode(this.memory.tail);
   }
 
   // Helper for deleting a specific node ID
   circularDoublyDeleteNode(nodeId) {
-      const variables = { node: nodeId };
-      const headId = this.memory.head;
-      const tailId = this.memory.tail;
+    const variables = { node: nodeId };
+    const headId = this.memory.head;
+    const tailId = this.memory.tail;
 
-      this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [nodeId] }, `// Deleting node`);
+    this.stepEmitter.addStep(1, { ...variables }, { ...this.memory.getState(), highlights: [nodeId] }, `// Deleting node`);
 
-      // Case: Single Node
-      if (this.memory.getNext(nodeId) === nodeId) {
-          this.memory.reset();
-          this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `head = tail = nullptr; delete node;`);
-          return this.stepEmitter.getSteps();
-      }
-
-      const prev = this.memory.getPrev(nodeId);
-      const next = this.memory.getNext(nodeId);
-
-      // prev->next = next
-      this.memory.setNext(prev, next);
-      
-      // next->prev = prev
-      this.memory.setPrev(next, prev);
-
-      this.stepEmitter.addStep(
-          2, 
-          { ...variables }, 
-          this.memory.getState(),
-          `node->prev->next = node->next; node->next->prev = node->prev;`
-      );
-
-      // Update Head/Tail if we are deleting them
-      if (nodeId === headId) {
-          this.memory.setHead(next);
-          this.stepEmitter.addStep(3, { ...variables, head: next }, this.memory.getState(), `head = node->next;`);
-      }
-      if (nodeId === tailId) {
-          this.memory.setTail(prev);
-          this.stepEmitter.addStep(3, { ...variables, tail: prev }, this.memory.getState(), `tail = node->prev;`);
-      }
-
-      // Update curr if needed (move to next usually)
-      if (this.memory.curr === nodeId) {
-          this.memory.setCurr(next);
-      }
-
-      this.memory.deleteNode(nodeId);
-      this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `delete node;`);
-      
+    // Case: Single Node
+    if (this.memory.getNext(nodeId) === nodeId) {
+      this.memory.reset();
+      this.stepEmitter.addStep(2, { ...variables }, this.memory.getState(), `head = tail = nullptr; delete node;`);
       return this.stepEmitter.getSteps();
+    }
+
+    const prev = this.memory.getPrev(nodeId);
+    const next = this.memory.getNext(nodeId);
+
+    // prev->next = next
+    this.memory.setNext(prev, next);
+
+    // next->prev = prev
+    this.memory.setPrev(next, prev);
+
+    this.stepEmitter.addStep(
+      2,
+      { ...variables },
+      this.memory.getState(),
+      `node->prev->next = node->next; node->next->prev = node->prev;`
+    );
+
+    // Update Head/Tail if we are deleting them
+    if (nodeId === headId) {
+      this.memory.setHead(next);
+      this.stepEmitter.addStep(3, { ...variables, head: next }, this.memory.getState(), `head = node->next;`);
+    }
+    if (nodeId === tailId) {
+      this.memory.setTail(prev);
+      this.stepEmitter.addStep(3, { ...variables, tail: prev }, this.memory.getState(), `tail = node->prev;`);
+    }
+
+    // Update curr if needed (move to next usually)
+    if (this.memory.curr === nodeId) {
+      this.memory.setCurr(next);
+    }
+
+    this.memory.deleteNode(nodeId);
+    this.stepEmitter.addStep(4, { ...variables }, this.memory.getState(), `delete node;`);
+
+    return this.stepEmitter.getSteps();
   }
-  
+
   circularDoublyDeleteCurr() {
-      if (!this.memory.curr) return [];
-      return this.circularDoublyDeleteNode(this.memory.curr);
+    if (!this.memory.curr) return [];
+    return this.circularDoublyDeleteNode(this.memory.curr);
   }
 
   circularDoublyDeleteValue(value) {
-      const variables = { value, curr: this.memory.head };
-      if (!this.memory.head) return [];
+    const variables = { value, curr: this.memory.head };
+    if (!this.memory.head) return [];
 
-      let curr = this.memory.head;
-      let found = false;
-      let start = curr;
-      
-      this.stepEmitter.addStep(1, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `Node* curr = head;`);
+    let curr = this.memory.head;
+    let found = false;
+    let start = curr;
 
-      do {
-          const node = this.memory.getNode(curr);
-          if (node.value == value) {
-              found = true;
-               this.stepEmitter.addStep(2, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `// Found value`);
-              return this.circularDoublyDeleteNode(curr);
-          }
-          curr = node.next;
-          this.stepEmitter.addStep(2, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `curr = curr->next;`);
-      } while (curr !== start);
+    this.stepEmitter.addStep(1, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `Node* curr = head;`);
 
-      this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `// Value not found`);
-      return this.stepEmitter.getSteps();
+    do {
+      const node = this.memory.getNode(curr);
+      if (node.value == value) {
+        found = true;
+        this.stepEmitter.addStep(2, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `// Found value`);
+        return this.circularDoublyDeleteNode(curr);
+      }
+      curr = node.next;
+      this.stepEmitter.addStep(2, { ...variables, curr }, { ...this.memory.getState(), highlights: [curr] }, `curr = curr->next;`);
+    } while (curr !== start);
+
+    this.stepEmitter.addStep(3, { ...variables }, this.memory.getState(), `// Value not found`);
+    return this.stepEmitter.getSteps();
   }
 
   circularDoublyMoveToNext() {
-      if (!this.memory.curr) return [];
-      const next = this.memory.getNext(this.memory.curr);
-      this.memory.setCurr(next);
-      this.stepEmitter.addStep(1, { curr: next }, { ...this.memory.getState(), highlights: [next] }, `curr = curr->next;`);
-      return this.stepEmitter.getSteps();
+    if (!this.memory.curr) return [];
+    const next = this.memory.getNext(this.memory.curr);
+    this.memory.setCurr(next);
+    this.stepEmitter.addStep(1, { curr: next }, { ...this.memory.getState(), highlights: [next] }, `curr = curr->next;`);
+    return this.stepEmitter.getSteps();
   }
 
   circularDoublyMoveToPrev() {
-      if (!this.memory.curr) return [];
-      const prev = this.memory.getPrev(this.memory.curr);
-      this.memory.setCurr(prev);
-      this.stepEmitter.addStep(1, { curr: prev }, { ...this.memory.getState(), highlights: [prev] }, `curr = curr->prev;`);
-      return this.stepEmitter.getSteps();
+    if (!this.memory.curr) return [];
+    const prev = this.memory.getPrev(this.memory.curr);
+    this.memory.setCurr(prev);
+    this.stepEmitter.addStep(1, { curr: prev }, { ...this.memory.getState(), highlights: [prev] }, `curr = curr->prev;`);
+    return this.stepEmitter.getSteps();
   }
 
   // Helper: Reset the engine
@@ -1745,9 +1749,9 @@ export class DSAEngine {
     this.memory.reset();
     this.stepEmitter.clear();
   }
-  
+
   // Helper: Get current memory state (Fixed missing method)
   getMemoryState() {
-     return this.memory.getState();
+    return this.memory.getState();
   }
 }

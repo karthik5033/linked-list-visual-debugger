@@ -11,14 +11,16 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     // Flag to avoid hydration mismatch
     setMounted(true);
-    
+
     // Check local storage
     const saved = localStorage.getItem('dsa-viz-theme');
-    if (saved) {
-      setIsDark(saved === 'dark');
+    const initialDark = saved ? saved === 'dark' : true; // Default to dark
+
+    setIsDark(initialDark);
+    if (initialDark) {
+      document.documentElement.classList.add('dark');
     } else {
-        // Default to dark
-        setIsDark(true);
+      document.documentElement.classList.remove('dark');
     }
   }, []);
 
@@ -26,6 +28,11 @@ export function ThemeProvider({ children }) {
     setIsDark(prev => {
       const next = !prev;
       localStorage.setItem('dsa-viz-theme', next ? 'dark' : 'light');
+      if (next) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
       return next;
     });
   };
@@ -35,7 +42,7 @@ export function ThemeProvider({ children }) {
   // Actually, for themes, usually we accept a flash or use next-themes. 
   // Custom simple implementation: use mounted flag to apply 'transition' classes only after mount?
   // Or just pass `isDark` down.
-  
+
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme, mounted }}>
       {children}

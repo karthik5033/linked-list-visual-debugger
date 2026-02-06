@@ -145,7 +145,7 @@ export default function MemoryBoard({
                                             {/* Prev Pointer Loop (Top arc) - from head to tail - for Doubly */}
                                             {isDoubly && (
                                                 <path
-                                                    d={`M 87 30 Q ${nodeList.length * 75} -30, ${(nodeList.length - 1) * 150 + 63} 30`}
+                                                    d={`M 63 10 Q ${nodeList.length * 75} -120, ${(nodeList.length - 1) * 150 + 87} -5`}
                                                     fill="none"
                                                     stroke="#3b82f6"
                                                     strokeWidth="2.5"
@@ -168,8 +168,8 @@ export default function MemoryBoard({
 
 const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = true, type, onClick, isDark }) => {
     return (
-        <div 
-            className={`relative flex items-center ${onClick ? 'cursor-pointer' : ''}`} 
+        <div
+            className={`relative flex items-center ${onClick ? 'cursor-pointer' : ''}`}
             style={{ width: '150px' }}
             onClick={onClick}
         >
@@ -187,14 +187,14 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
                         ? 'bg-blue-600 border-blue-300 shadow-blue-500/50'
                         : isCurr
                             ? 'bg-purple-600 border-purple-300 shadow-purple-500/50'
-                            : isDark 
+                            : isDark
                                 ? 'bg-gray-800 border-gray-600 hover:border-gray-400 cursor-pointer'
                                 : 'bg-gray-100 border-gray-300 hover:border-gray-400 cursor-pointer'
                     }
         `}
             >
                 <div className="flex flex-col items-center justify-center h-full px-2 w-full overflow-hidden scale-[0.9]">
-                    <span 
+                    <span
                         className={`text-[11px] font-bold font-mono text-center break-all leading-tight line-clamp-3 select-none transition-colors
                             ${(isHighlighted || isCurr) ? 'text-white' : isDark ? 'text-white' : 'text-gray-900'}
                         `}
@@ -208,9 +208,9 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
                 <div className="absolute -top-[52px] flex flex-col items-center gap-1 w-max pointer-events-none">
                     <AnimatePresence mode="popLayout">
                         {isCurr ? (
-                            <motion.span 
+                            <motion.span
                                 key={`curr-${node.id}`}
-                                initial={{ y: 5, opacity: 0 }} 
+                                initial={{ y: 5, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: -5, opacity: 0 }}
                                 className="px-2 py-0.5 bg-purple-600 shadow-[0_0_15px_rgba(168,85,247,0.4)] text-white text-[9px] font-black rounded uppercase tracking-tighter"
@@ -220,9 +220,9 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
                         ) : null}
                         <div className="flex gap-1" key={`marks-${node.id}`}>
                             {isHead && (
-                                <motion.span 
+                                <motion.span
                                     key={`head-${node.id}`}
-                                    initial={{ y: 5, opacity: 0 }} 
+                                    initial={{ y: 5, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ scale: 0.8, opacity: 0 }}
                                     className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-[9px] font-bold rounded border border-green-500/50 uppercase tracking-tighter"
@@ -231,9 +231,9 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
                                 </motion.span>
                             )}
                             {isTail && (
-                                <motion.span 
+                                <motion.span
                                     key={`tail-${node.id}`}
-                                    initial={{ y: 5, opacity: 0 }} 
+                                    initial={{ y: 5, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ scale: 0.8, opacity: 0 }}
                                     className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[9px] font-bold rounded border border-orange-500/50 uppercase tracking-tighter"
@@ -255,7 +255,7 @@ const Node = ({ node, isHead, isTail, isCurr, isHighlighted, showNextPointer = t
 
             {/* Pointers (Arrows) */}
             {showNextPointer && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[54px] flex flex-col items-center justify-center gap-1">
+                <div className="absolute -right-[27px] top-1/2 -translate-y-1/2 w-[54px] flex flex-col items-center justify-center gap-1">
                     {/* Forward Arrow (Next) */}
                     <div className={`flex items-center w-full ${isDark ? 'text-gray-500' : 'text-gray-300'}`}>
                         <svg width="100%" height="8" viewBox="0 0 24 8" fill="none" preserveAspectRatio="none">

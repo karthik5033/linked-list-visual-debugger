@@ -45,17 +45,19 @@ export default function LinkedListLayout({
     };
 
     return (
-        <div className="min-h-screen text-white flex flex-col font-sans">
-            <MemoryBackground />
-            <StatusBar />
-            
+        <div className={`min-h-screen flex flex-col font-sans transition-colors duration-500 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <MemoryBackground isDark={isDark} />
+            <StatusBar isDark={isDark} />
+
             {/* Header */}
-            <header className="border-b border-white/5 bg-[#0a0a0a]/60 backdrop-blur-xl sticky top-0 z-50">
+            <header className={`border-b backdrop-blur-xl sticky top-0 z-50 transition-colors duration-500
+                ${isDark ? 'border-white/5 bg-[#0a0a0a]/60' : 'border-gray-200 bg-white/80'}`}>
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-6">
                         <Link
                             href="/"
-                            className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all hover:scale-105"
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-105
+                                ${isDark ? 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10' : 'bg-gray-100 border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-200'}`}
                         >
                             ←
                         </Link>
@@ -64,28 +66,30 @@ export default function LinkedListLayout({
                                 {icon}
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold tracking-tight text-white">{title}</h1>
+                                <h1 className={`text-xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{title}</h1>
                                 <p className="text-xs text-blue-400 font-mono tracking-wide uppercase">{subtitle}</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="min-w-[400px]">
-                        <ModeTabs currentMode={currentMode} onModeChange={setCurrentMode} />
+                        <ModeTabs currentMode={currentMode} onModeChange={setCurrentMode} isDark={isDark} />
                     </div>
 
                     <div className="w-24 text-right">
-                       <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-[10px] text-green-500 font-mono font-bold tracking-wider">ONLINE</span>
-                       </div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                            <span className="text-[10px] text-green-500 font-mono font-bold tracking-wider">ONLINE</span>
+                        </div>
                     </div>
                 </div>
             </header>
 
             {/* Main Content */}
             <main className="flex-1 max-w-7xl mx-auto w-full p-6 pb-24">
-                <div className="bg-[#0a0a0a]/40 backdrop-blur-md border border-white/10 rounded-2xl min-h-[calc(100vh-160px)] shadow-2xl overflow-hidden animate-fade-in-up">
+                <div className={`backdrop-blur-md border rounded-2xl min-h-[calc(100vh-160px)] shadow-2xl overflow-hidden animate-fade-in-up transition-colors duration-500
+                    ${isDark ? 'bg-[#0a0a0a]/40 border-white/10' : 'bg-white/60 border-gray-200 shadow-xl'}`}>
+
                     {children ? children(currentMode, setCurrentMode) : renderContent()}
                 </div>
             </main>
