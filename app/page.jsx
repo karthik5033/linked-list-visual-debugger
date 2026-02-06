@@ -149,9 +149,65 @@ export default function Home() {
       {/* Header with Theme Switcher */}
       <header className={`fixed top-0 left-0 right-0 z-40 px-6 py-5 flex items-center justify-between backdrop-blur-md border-b transition-colors duration-500
         ${isDark ? 'bg-black/20 border-white/5' : 'bg-white/60 border-gray-200'}`}>
-        <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">D</div>
-            <span className={`font-bold tracking-tight text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>DSA<span className="text-gray-500 font-normal">Viz</span></span>
+        <div className="flex items-center gap-3">
+            {/* Logo Icon - Professional sophisticated design */}
+            <div className={`relative w-11 h-11 rounded-2xl flex items-center justify-center group transition-all duration-300 hover:scale-105 border
+                ${isDark 
+                    ? 'bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 border-slate-600/50 shadow-lg shadow-slate-900/50 hover:shadow-slate-700/40' 
+                    : 'bg-gradient-to-br from-slate-100 via-white to-slate-50 border-slate-300/60 shadow-lg shadow-slate-400/20 hover:shadow-slate-500/30'
+                }`}>
+                {/* Complex layered geometric structure */}
+                <svg className={`w-7 h-7 transition-colors ${isDark ? 'text-slate-300' : 'text-slate-700'}`} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Hexagonal container outline */}
+                    <path d="M20 4L32 11V29L20 36L8 29V11L20 4Z" 
+                          stroke="currentColor" 
+                          strokeWidth="1.5" 
+                          opacity="0.3"
+                          strokeLinejoin="round"/>
+                    
+                    {/* Inner hexagon */}
+                    <path d="M20 10L27 14V26L20 30L13 26V14L20 10Z" 
+                          stroke="currentColor" 
+                          strokeWidth="1.2" 
+                          opacity="0.5"
+                          strokeLinejoin="round"/>
+                    
+                    {/* Central node cluster - representing linked data */}
+                    <circle cx="20" cy="20" r="2.5" fill="currentColor" opacity="0.9"/>
+                    <circle cx="14" cy="17" r="1.8" fill="currentColor" opacity="0.7"/>
+                    <circle cx="26" cy="17" r="1.8" fill="currentColor" opacity="0.7"/>
+                    <circle cx="17" cy="25" r="1.8" fill="currentColor" opacity="0.7"/>
+                    <circle cx="23" cy="25" r="1.8" fill="currentColor" opacity="0.7"/>
+                    
+                    {/* Connection lines - data flow */}
+                    <path d="M15.5 17.5L17.5 19" stroke="currentColor" strokeWidth="1.2" opacity="0.4" strokeLinecap="round"/>
+                    <path d="M24.5 17.5L22.5 19" stroke="currentColor" strokeWidth="1.2" opacity="0.4" strokeLinecap="round"/>
+                    <path d="M18.5 23L19 21" stroke="currentColor" strokeWidth="1.2" opacity="0.4" strokeLinecap="round"/>
+                    <path d="M21.5 23L21 21" stroke="currentColor" strokeWidth="1.2" opacity="0.4" strokeLinecap="round"/>
+                    
+                    {/* Pointer arrows - subtle directional indicators */}
+                    <path d="M27 14L28 15" stroke="currentColor" strokeWidth="1" opacity="0.3" strokeLinecap="round"/>
+                    <path d="M13 26L12 27" stroke="currentColor" strokeWidth="1" opacity="0.3" strokeLinecap="round"/>
+                    
+                    {/* Memory address markers */}
+                    <rect x="18.5" y="12" width="3" height="1" rx="0.5" fill="currentColor" opacity="0.25"/>
+                    <rect x="18.5" y="27" width="3" height="1" rx="0.5" fill="currentColor" opacity="0.25"/>
+                </svg>
+                
+                {/* Subtle professional glow */}
+                <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-20 blur-lg transition-all duration-300
+                    ${isDark ? 'bg-slate-400' : 'bg-slate-600'}`}></div>
+            </div>
+            
+            {/* Brand Text */}
+            <div className="flex items-baseline gap-1">
+                <span className={`font-bold tracking-tight text-xl transition-colors ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    DSA
+                </span>
+                <span className={`font-semibold text-lg transition-colors ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Viz
+                </span>
+            </div>
         </div>
         <button 
             onClick={toggleTheme}
